@@ -1,53 +1,30 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 
 <html>
 <head>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/skeleton.css">
-    <link rel="stylesheet" href="css/pomodoro.css" />
+    <link rel="stylesheet" href="css/tictactoe.css" />
     <link href="https://fonts.googleapis.com/css?family=Indie+Flower" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Gochi+Hand" rel="stylesheet">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-    <script src="js/pomodoro.js"></script>
+    <script src="js/tictactoe.js"></script>
 
-    <title>Pomodoro Clock</title>
+    <title>Tic Tac Toe</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <style>
-        .progress {
-            height: 300px;
-        }
-
-            .progress > svg {
-                height: 100%;
-                display: block;
-            }
-    </style>
 </head>
+
 <body>
     <div id="pageContent" class="container">
         <div class="row">
             <div class="twelve columns" >
-                <h5>Pomodoro Clock</h5>
-                <div id="pomodoro">
-                    <div class="timerSettings">
-                        <span>Session minutes:</span>
-                        <span><input type="number" min="1" max="60" id="pomodoroMinutes" value="25" /></span>
-                    </div>
-                    <div class="timerSettings">
-                        <span>&nbsp;&nbsp;Break minutes:</span>
-                        <span><input type="number" min="1" max="60" id="breakMinutes" value="5" /></span>
-                    </div>
-                    <div id="tomato">
-                        <img src="img/tomato.jpg" />
-                        <div id="timeRemaining"></div>
-                    </div>
+                <h5>Tic Tac Toe!</h5>
+                <div id="tictactoe">
                     <div class="signature">by Curt Hill</div>
                 </div>
             </div>
         </div>
     </div>
-    
 </body>
 </html>
