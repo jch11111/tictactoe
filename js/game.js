@@ -2,7 +2,7 @@ var game = (function () {
     var VERTICAL = 0,
         HORIZONTAL = 1;
 
-    function drawLine(fromX, fromY, length, verticalOrHorizontal, width) {
+    function drawLine(fromX, fromY, length, verticalOrHorizontal, width, color) {
         var x2, x3, x4, y2, y3, y4;
 
         if (VERTICAL === verticalOrHorizontal) {
@@ -23,7 +23,7 @@ var game = (function () {
             .lineTo(x3, y3)
             .lineTo(x4, y4)
             .closePath()
-            .fill('blue')
+            .fill(color)
             .addTo(stage);
     }
     return {
@@ -32,8 +32,8 @@ var game = (function () {
 })();
 
 
-game.drawLine(75, 0, 225, 0, 2);
-game.drawLine(150, 0, 225, 0, 2);
-game.drawLine(0, 75, 225, 1, 2);
-game.drawLine(0, 150, 225, 1, 2);
+game.drawLine(75, 0, 225, 0, 2, '#0F050E');
+game.drawLine(150, 0, 225, 0, 2, '#0F050E');
+game.drawLine(0, 75, 225, 1, 2, '#0F050E');
+game.drawLine(0, 150, 225, 1, 2, '#0F050E');
 
