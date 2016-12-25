@@ -5,11 +5,13 @@
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/skeleton.css">
     <link rel="stylesheet" href="css/tictactoe.css" />
+    
     <link href="https://fonts.googleapis.com/css?family=Indie+Flower" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Gochi+Hand" rel="stylesheet">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="js/tictactoe.js"></script>
+    <script src="js/ocanvas-2.8.6.js"></script>
 
     <title>Tic Tac Toe</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,6 +23,11 @@
             <div class="twelve columns">
                 <h5>Tic Tac Toe!</h5>
                 <div id="tictactoe">
+                    <div id="main" role="main">
+                        <canvas id="respondCanvas" width="100" height="100">
+                            < !-- Provide fallback -->
+                        </canvas>
+                    </div>
                     <div class="signature">
                         by Curt Hill
                     </div>
