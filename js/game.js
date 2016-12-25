@@ -1,4 +1,4 @@
-var game = (function () {
+//var game = (function () {
     var VERTICAL = 0,
         HORIZONTAL = 1;
 
@@ -26,14 +26,15 @@ var game = (function () {
             .fill(color)
             .addTo(stage);
     }
+/*
     return {
         drawLine: drawLine
     }
 })();
+*/
 
-
-game.drawLine(75, 0, 225, 0, 2, '#0F050E');
-game.drawLine(150, 0, 225, 0, 2, '#0F050E');
-game.drawLine(0, 75, 225, 1, 2, '#0F050E');
-game.drawLine(0, 150, 225, 1, 2, '#0F050E');
+    drawLine(75, 0, 225, 0, 2, '#0F050E');
+    drawLine(150, 0, 225, 0, 2, '#0F050E');
+    drawLine(0, 75, 225, 1, 2, '#0F050E');
+    drawLine(0, 150, 225, 1, 2, '#0F050E');
 

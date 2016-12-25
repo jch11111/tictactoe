@@ -43,11 +43,6 @@ var tictactoe = (function () {
                 height: 225
             });
 
-
-
-
-
-            drawGame();
         })
     };
 
