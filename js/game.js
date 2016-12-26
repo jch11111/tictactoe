@@ -24,7 +24,7 @@
             .lineTo(x4, y4)
             .closePath()
             .fill(color)
-            .addTo(stage);
+            .addTo(stage)
     }
 /*
     return {
@@ -32,6 +32,10 @@
     }
 })();
 */
+    stage.on('click', function (e) {
+        console.log(Math.round(e.stageX, 2));
+        console.log(Math.round(e.stageY, 2));
+    });
 
     drawLine(75, 0, 225, 0, 2, '#0F050E');
     drawLine(150, 0, 225, 0, 2, '#0F050E');
