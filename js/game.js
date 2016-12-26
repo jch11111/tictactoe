@@ -35,6 +35,7 @@
     stage.on('click', function (e) {
         console.log(Math.round(e.stageX, 2));
         console.log(Math.round(e.stageY, 2));
+        console.log(Math.round(env.offsetX, 2));
     });
 
     drawLine(75, 0, 225, 0, 2, '#0F050E');
