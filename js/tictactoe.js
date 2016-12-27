@@ -3,7 +3,7 @@ var tictactoe = (function () {
     var VERTICAL = 0,
         HORIZONTAL = 1,
         rowAndColumnHeight = 75,
-        buffer = 5,
+        nonClickableDivider = 5,
         gameGrid = {
             '1': { origin: { x: 0, y: 0 } },
             '2': { origin: { x: rowAndColumnHeight, y: 0 } },
@@ -11,10 +11,11 @@ var tictactoe = (function () {
             '4': { origin: { x: 0, y: rowAndColumnHeight } },
             '5': { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight } },
             '6': { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight } },
-            '7': { origin: { x: 0, y: rowAndColumnHeight*2 } },
-            '8': { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight*2 } },
-            '9': { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight*2 } },
-        }
+            '7': { origin: { x: 0, y: rowAndColumnHeight * 2 } },
+            '8': { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 } },
+            '9': { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 } },
+        },
+        padding = 0.2 * rowAndColumnHeight;
 
     function init() {
         $(function () {
@@ -31,14 +32,15 @@ var tictactoe = (function () {
 
     function handleCanvasClick(x, y) {
         var squareNumber = getSquareNumber(x, y);
-        console.log(squareNumber);
-        drawX(squareNumber);
+        if (!squareNumber) {
+            return;
+        }
+        squareNumber % 2 === 0 ? drawO(squareNumber) : drawX(squareNumber);
     }
 
     function drawX(squareNumber) {
         var squareOriginX = gameGrid[squareNumber].origin.x,
             squareOriginY = gameGrid[squareNumber].origin.y,
-            padding = 0.2 * rowAndColumnHeight,
             startX = squareOriginX + padding,
             startY = squareOriginY + padding,
             endX = startX + rowAndColumnHeight - (2 * padding),
@@ -46,7 +48,7 @@ var tictactoe = (function () {
             temp;
 
         $('canvas').drawLine({
-            strokeStyle: '#000',
+            strokeStyle: '#F00',
             strokeWidth: 5,
             x1: startX, y1: startY,
             x2: endX, y2: endY
@@ -57,21 +59,37 @@ var tictactoe = (function () {
         endY = temp;
 
         $('canvas').drawLine({
-            strokeStyle: '#000',
+            strokeStyle: '#F00',
             strokeWidth: 5,
             x1: startX, y1: startY,
             x2: endX, y2: endY
         });
     }
 
+    function drawO(squareNumber) {
+        var squareOriginX = gameGrid[squareNumber].origin.x,
+            squareOriginY = gameGrid[squareNumber].origin.y,
+            centerX = squareOriginX + rowAndColumnHeight / 2,
+            centerY = squareOriginY + rowAndColumnHeight / 2,
+            circleWidthAndHeight = rowAndColumnHeight - (2 * padding);
+
+        $('canvas').drawEllipse({
+            strokeStyle: '#0F0',
+            strokeWidth: 5,
+            x: centerX, y: centerY,
+            width: circleWidthAndHeight, height: circleWidthAndHeight
+        });
+
+    }
+
     function getSquareNumber(x, y) {
         var squareNumber,
-            isFirstRow = buffer < y && y < rowAndColumnHeight - buffer,
-            isSecondRow = rowAndColumnHeight + buffer < y && y < rowAndColumnHeight * 2 - buffer,
-            isThirdRow = rowAndColumnHeight * 2 + buffer < y && y < rowAndColumnHeight * 3 - buffer,
-            isFirstColumn = buffer < x && x < rowAndColumnHeight - buffer,
-            isSecondColumn = rowAndColumnHeight + buffer < x && x < rowAndColumnHeight * 2 - buffer,
-            isThirdColumn = rowAndColumnHeight * 2 + buffer < x && x < rowAndColumnHeight * 3 - buffer;
+            isFirstRow = nonClickableDivider < y && y < rowAndColumnHeight - nonClickableDivider,
+            isSecondRow = rowAndColumnHeight + nonClickableDivider < y && y < rowAndColumnHeight * 2 - nonClickableDivider,
+            isThirdRow = rowAndColumnHeight * 2 + nonClickableDivider < y && y < rowAndColumnHeight * 3 - nonClickableDivider,
+            isFirstColumn = nonClickableDivider < x && x < rowAndColumnHeight - nonClickableDivider,
+            isSecondColumn = rowAndColumnHeight + nonClickableDivider < x && x < rowAndColumnHeight * 2 - nonClickableDivider,
+            isThirdColumn = rowAndColumnHeight * 2 + nonClickableDivider < x && x < rowAndColumnHeight * 3 - nonClickableDivider;
 
         if (isFirstRow) {
             squareNumber = (isFirstColumn) ? 1 : ((isSecondColumn ? 2 : (isThirdColumn ? 3: 0)));
