@@ -2,6 +2,8 @@ var tictactoe = (function () {
 
     var VERTICAL = 0,
         HORIZONTAL = 1,
+        COMPUTER = true,
+        USER = false,
         rowAndColumnHeight = 75,
         nonClickableDivider = 5,
         gameGrid = [
@@ -15,7 +17,8 @@ var tictactoe = (function () {
             { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 } },
             { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 } }
         ],
-        padding = 0.2 * rowAndColumnHeight;
+        padding = 0.2 * rowAndColumnHeight,
+        whoseTurn = USER;
 
     function init() {
         $(function () {
@@ -31,11 +34,26 @@ var tictactoe = (function () {
     }
 
     function handleCanvasClick(x, y) {
+        if (COMPUTER === whoseTurn) {
+            return;
+        }
+
         var squareNumber = getSquareNumber(x, y);
+
         if (isNaN(squareNumber)) {
             return;
         }
-        squareNumber % 2 === 0 ? drawO(squareNumber) : drawX(squareNumber);
+        drawX(squareNumber);
+
+        whoseTurn = !whoseTurn;
+
+        doComputersTurn();
+    }
+
+    function doComputersTurn() {
+        console.log('computers turn');
+
+        whoseTurn = !whoseTurn;
     }
 
     function drawX(squareNumber) {
