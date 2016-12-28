@@ -4,17 +4,17 @@ var tictactoe = (function () {
         HORIZONTAL = 1,
         rowAndColumnHeight = 75,
         nonClickableDivider = 5,
-        gameGrid = {
-            '1': { origin: { x: 0, y: 0 } },
-            '2': { origin: { x: rowAndColumnHeight, y: 0 } },
-            '3': { origin: { x: rowAndColumnHeight * 2, y: 0 } },
-            '4': { origin: { x: 0, y: rowAndColumnHeight } },
-            '5': { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight } },
-            '6': { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight } },
-            '7': { origin: { x: 0, y: rowAndColumnHeight * 2 } },
-            '8': { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 } },
-            '9': { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 } },
-        },
+        gameGrid = [
+            { origin: { x: 0, y: 0 } },
+            { origin: { x: rowAndColumnHeight, y: 0 } },
+            { origin: { x: rowAndColumnHeight * 2, y: 0 } },
+            { origin: { x: 0, y: rowAndColumnHeight } },
+            { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight } },
+            { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight } },
+            { origin: { x: 0, y: rowAndColumnHeight * 2 } },
+            { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 } },
+            { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 } }
+        ],
         padding = 0.2 * rowAndColumnHeight;
 
     function init() {
@@ -32,7 +32,7 @@ var tictactoe = (function () {
 
     function handleCanvasClick(x, y) {
         var squareNumber = getSquareNumber(x, y);
-        if (!squareNumber) {
+        if (isNaN(squareNumber)) {
             return;
         }
         squareNumber % 2 === 0 ? drawO(squareNumber) : drawX(squareNumber);
@@ -92,15 +92,15 @@ var tictactoe = (function () {
             isThirdColumn = rowAndColumnHeight * 2 + nonClickableDivider < x && x < rowAndColumnHeight * 3 - nonClickableDivider;
 
         if (isFirstRow) {
-            squareNumber = (isFirstColumn) ? 1 : ((isSecondColumn ? 2 : (isThirdColumn ? 3: 0)));
+            squareNumber = (isFirstColumn) ? 0 : ((isSecondColumn ? 1 : (isThirdColumn ? 2: 0)));
         }
 
         if (isSecondRow) {
-            squareNumber = (isFirstColumn) ? 4 : ((isSecondColumn ? 5 : (isThirdColumn ? 6 : 0)));
+            squareNumber = (isFirstColumn) ? 3 : ((isSecondColumn ? 4 : (isThirdColumn ? 5 : 0)));
         }
 
         if (isThirdRow) {
-            squareNumber = (isFirstColumn) ? 7 : ((isSecondColumn ? 8 : (isThirdColumn ? 9 : 0)));
+            squareNumber = (isFirstColumn) ? 6 : ((isSecondColumn ? 7 : (isThirdColumn ? 8 : 0)));
         }
 
         return squareNumber;
