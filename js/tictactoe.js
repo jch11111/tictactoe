@@ -1,24 +1,43 @@
 var tictactoe = (function () {
 
-    var VERTICAL = 0,
-        HORIZONTAL = 1,
+    var ROW = 1,
+        COLUMN = 2,
         COMPUTER = true,
         USER = false,
+        X = 'X',
+        Y = 'Y',
         rowAndColumnHeight = 75,
         nonClickableDivider = 5,
-        gameGrid = [
-            { origin: { x: 0, y: 0 } },
-            { origin: { x: rowAndColumnHeight, y: 0 } },
-            { origin: { x: rowAndColumnHeight * 2, y: 0 } },
-            { origin: { x: 0, y: rowAndColumnHeight } },
-            { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight } },
-            { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight } },
-            { origin: { x: 0, y: rowAndColumnHeight * 2 } },
-            { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 } },
-            { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 } }
-        ],
+        gameGrid = {
+            squares: [
+                { origin: { x: 0, y: 0 }, position: {row: 1, col: 1, diag1: true } },
+                { origin: { x: rowAndColumnHeight, y: 0 }, position: {row: 1, col: 2} },
+                { origin: { x: rowAndColumnHeight * 2, y: 0 }, position: {row: 1, col: 3, diag2: true } },
+                { origin: { x: 0, y: rowAndColumnHeight }, position: {row: 2, col: 1 } },
+                { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight }, position: {row: 2, col: 2, diag1: true, diag2: true } },
+                { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight }, position: {row: 2, col: 3 } },
+                { origin: { x: 0, y: rowAndColumnHeight * 2 }, position: {row: 3, col: 1, diag2: true } },
+                { origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 }, position: {row: 3, col: 2 } },
+                { origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 }, position: {row: 3, col: 3, diag1: true } }
+            ],
+            getRowOrColumn: function (rowOrColumn, rowOrColumnNumber) {
+                return this.squares.filter(function (square) {
+                    if ('diag1' === rowOrColumn || 'diag2' === rowOrColumn) {
+                        return square.position[rowOrColumn];
+                    } else {
+                        return square.position[rowOrColumn] === rowOrColumnNumber;
+                    }
+                })
+                .map(function (square) {
+                    return square.xOrY;
+                })
+                .join('');
+            }
+        },
         padding = 0.2 * rowAndColumnHeight,
-        whoseTurn = USER;
+        whoseTurn = USER,
+        XXX = 'XXX',
+        YYY = 'YYY';
 
     function init() {
         $(function () {
@@ -43,11 +62,67 @@ var tictactoe = (function () {
         if (isNaN(squareNumber)) {
             return;
         }
+
+        if (gameGrid.squares[squareNumber].xOrY) {
+            return;  //square is already taken
+        }
+
+        setSquareSelected(squareNumber, X);
         drawX(squareNumber);
+
+        if (checkIfGameOver()) {
+            alert('game over!');
+        }
 
         whoseTurn = !whoseTurn;
 
         doComputersTurn();
+    }
+
+    function checkIfGameOver() {
+        var howManySquaresTaken = gameGrid.squares.filter(function (square) {
+            return square.xOrY;
+        }).length;
+
+        if (9 === howManySquaresTaken) {
+            return true;
+        }
+
+        for (var row = 1; row <= 3; row++) {
+            var gameRow = gameGrid.getRowOrColumn('row', row);
+            if (gameRow === XXX || gameRow === YYY) {
+                return true;
+            }
+        }
+
+        if (checkForWinningRowOrColumn('row')
+            || checkForWinningRowOrColumn('col')
+            || checkForWinningRowOrColumn('diag1')
+            || checkForWinningRowOrColumn('diag2')) {
+            alert('game over');
+        }
+
+        function checkForWinningRowOrColumn(rowsOrColumns) {
+            for (var rowOrColumn = 1; rowOrColumn <= 3; rowOrColumn++) {
+                var gameRowOrColumn = gameGrid.getRowOrColumn(rowsOrColumns, rowOrColumn);
+                if (gameRowOrColumn === XXX || gameRowOrColumn === YYY) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return false;
+    }
+
+    function addSquareValues(squares) {
+        squares.reduce(function (a, b) {
+            return a + b;
+        })
+    }
+
+    function setSquareSelected(squareNumber, xOrY) {
+        gameGrid.squares[squareNumber].xOrY = xOrY;
     }
 
     function doComputersTurn() {
@@ -57,8 +132,8 @@ var tictactoe = (function () {
     }
 
     function drawX(squareNumber) {
-        var squareOriginX = gameGrid[squareNumber].origin.x,
-            squareOriginY = gameGrid[squareNumber].origin.y,
+        var squareOriginX = gameGrid.squares[squareNumber].origin.x,
+            squareOriginY = gameGrid.squares[squareNumber].origin.y,
             startX = squareOriginX + padding,
             startY = squareOriginY + padding,
             endX = startX + rowAndColumnHeight - (2 * padding),
@@ -85,8 +160,8 @@ var tictactoe = (function () {
     }
 
     function drawO(squareNumber) {
-        var squareOriginX = gameGrid[squareNumber].origin.x,
-            squareOriginY = gameGrid[squareNumber].origin.y,
+        var squareOriginX = gameGrid.squares[squareNumber].origin.x,
+            squareOriginY = gameGrid.squares[squareNumber].origin.y,
             centerX = squareOriginX + rowAndColumnHeight / 2,
             centerY = squareOriginY + rowAndColumnHeight / 2,
             circleWidthAndHeight = rowAndColumnHeight - (2 * padding);
