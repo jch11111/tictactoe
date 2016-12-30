@@ -11,12 +11,16 @@ var tictactoe = (function () {
         padding = 0.2 * rowAndColumnHeight,
         whoseTurn = USER,
         XXX = 'XXX',
-        OOO = 'OOO';
+        OOO = 'OOO',
+        gameStatus,
+        GAME_IN_PLAY = 0,
+        GAME_OVER = 1
 
     function init() {
         $(function () {
             setEventHandlers();
-            drawGame();
+            gameStatus = GAME_IN_PLAY;
+            gameGrid.drawGame($('canvas'));
         })
     };
 
@@ -27,6 +31,12 @@ var tictactoe = (function () {
     }
 
     function handleCanvasClick(x, y) {
+        if (gameStatus === GAME_OVER) {
+            gameGrid.refreshGame($('canvas'));
+            gameStatus = GAME_IN_PLAY;
+            return;
+        }
+
         if (COMPUTER === whoseTurn) {
             return;
         }
@@ -45,6 +55,7 @@ var tictactoe = (function () {
         drawX(squareNumber);
 
         if (checkIfGameOver()) {
+            gameStatus = GAME_OVER;
             console.log('game over');
         } else {
             whoseTurn = !whoseTurn;
@@ -93,6 +104,7 @@ var tictactoe = (function () {
         drawO(squareToPlay);
 
         if (checkIfGameOver()) {
+            gameStatus = GAME_OVER;
             console.log('game over!');
         }
 
@@ -205,33 +217,6 @@ var tictactoe = (function () {
                 break;
         }
         return squareNumber;
-    }
-
-    function drawGame() {
-        $('canvas').drawLine({
-            strokeStyle: '#000',
-            strokeWidth: 10,
-            x1: rowAndColumnHeight, y1: 0,
-            x2: rowAndColumnHeight, y2: rowAndColumnHeight*3
-        })
-        .drawLine({
-            strokeStyle: '#000',
-            strokeWidth: 10,
-            x1: rowAndColumnHeight*2, y1: 0,
-            x2: rowAndColumnHeight*2, y2: rowAndColumnHeight*3
-        })
-        .drawLine({
-            strokeStyle: '#000',
-            strokeWidth: 10,
-            x1: 0, y1: rowAndColumnHeight,
-            x2: rowAndColumnHeight*3, y2: rowAndColumnHeight
-        })
-        .drawLine({
-            strokeStyle: '#000',
-            strokeWidth: 10,
-            x1: 0, y1: rowAndColumnHeight*2,
-            x2: rowAndColumnHeight*3, y2: rowAndColumnHeight*2
-        })
     }
 
     return {

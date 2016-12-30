@@ -64,11 +64,60 @@ var gameGrid = (function () {
         }).length;
     }
 
+    function clear(canvas) {
+        canvas = canvas[0];
+        var context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        var w = canvas.width;
+        canvas.width = 1;
+        canvas.width = w;
+    }
+
+    function refreshGame(canvas) {
+        clear(canvas);
+        drawGame(canvas);
+        squares.forEach(function (square) {
+            if (square.xOrO) {
+                delete square.xOrO;
+            }
+        })
+    }
+
+    function drawGame(canvas) {
+        canvas.drawLine({
+            strokeStyle: '#000',
+            strokeWidth: 10,
+            x1: rowAndColumnHeight, y1: 0,
+            x2: rowAndColumnHeight, y2: rowAndColumnHeight * 3
+        })
+        .drawLine({
+            strokeStyle: '#000',
+            strokeWidth: 10,
+            x1: rowAndColumnHeight * 2, y1: 0,
+            x2: rowAndColumnHeight * 2, y2: rowAndColumnHeight * 3
+        })
+        .drawLine({
+            strokeStyle: '#000',
+            strokeWidth: 10,
+            x1: 0, y1: rowAndColumnHeight,
+            x2: rowAndColumnHeight * 3, y2: rowAndColumnHeight
+        })
+        .drawLine({
+            strokeStyle: '#000',
+            strokeWidth: 10,
+            x1: 0, y1: rowAndColumnHeight * 2,
+            x2: rowAndColumnHeight * 3, y2: rowAndColumnHeight * 2
+        })
+    }
+
     return {
         squares: squares,
         getNumberOfOccupiedSquares: getNumberOfOccupiedSquares,
         getStripesMeetingCriteria: getStripesMeetingCriteria,
-        getXsAndOs: getXsAndOs
+        getXsAndOs: getXsAndOs,
+        clear: clear,
+        drawGame: drawGame,
+        refreshGame: refreshGame
     }
 
 }());
