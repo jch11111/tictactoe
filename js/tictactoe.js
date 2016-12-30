@@ -20,20 +20,53 @@ var tictactoe = (function () {
                 {squareNumber: 7,  origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 }, position: {row: 2, col: 1 } },
                 {squareNumber: 8,  origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 }, position: {row: 2, col: 2, diag1: true } }
             ],
-            getRowOrColumn: function (rowOrColumn, rowOrColumnNumber) {
+            getStripe: function (direction, rowOrColumnNumber) {
                 return this.squares.filter(function (square) {
-                    if ('diag1' === rowOrColumn || 'diag2' === rowOrColumn) {
-                        return square.position[rowOrColumn];
+                    if ('diag1' === direction || 'diag2' === direction) {
+                        return square.position[direction];
                     } else {
-                        return square.position[rowOrColumn] === rowOrColumnNumber;
+                        return square.position[direction] === rowOrColumnNumber;
                     }
                 })
             },
-            getRowOrColumnXsAndOs: function (rowOrColumn, rowOrColumnNumber) {
-                return this.getRowOrColumn(rowOrColumn, rowOrColumnNumber)
-                        .map(function (square) {
-                            return square.xOrO;
-                        })
+
+            getXsAndOs: function (stripe) {
+                return stripe.map(function (square) {
+                    return square.xOrO;
+                })
+                .join('');
+            },
+            getStripesMeetingCriteria: function (criteriaFunction) {
+                var stripes = [],
+                    me = this;
+
+                getStripes('row');
+                getStripes('col');
+                getStripes('diag1');
+                getStripes('diag2');
+
+                function getStripes(direction) {
+                    var stripe;
+                    if ('diag1' === direction || 'diag2' === direction) {
+                        stripe = me.getStripe(direction);
+                        if (criteriaFunction(stripe)) {
+                            stripes.push(stripe);
+                        }
+                    } else {
+                        for (var squareNumber = 0; squareNumber <= 2; squareNumber++) {
+                            stripe = me.getStripe(direction, squareNumber);
+                            if (criteriaFunction(stripe)) {
+                                stripes.push(stripe);
+                            }
+                        }
+                    }
+                }
+                return stripes;
+            },
+            getNumberOfOccupiedSquares: function() {
+                return this.squares.filter(function (square) {
+                    return square.xOrO;
+                }).length;
             }
         },
         padding = 0.2 * rowAndColumnHeight,
@@ -84,32 +117,16 @@ var tictactoe = (function () {
     }
 
     function checkIfGameOver() {
-        var howManySquaresTaken = gameGrid.squares.filter(function (square) {
-            return square.xOrO;
-        }).length;
-
-        if (9 === howManySquaresTaken) {
+        if (9 === gameGrid.getNumberOfOccupiedSquares()) {
             return true;
         }
 
-        if (checkForWin('row')
-            || checkForWin('col')
-            || checkForWin('diag1')
-            || checkForWin('diag2')) {
-            return true;
-        }
+        var winningStripe = gameGrid.getStripesMeetingCriteria(function (stripe) {
+            var stripeXsAndOs = gameGrid.getXsAndOs(stripe);
+            return stripeXsAndOs === XXX || stripeXsAndOs === OOO;
+        })
 
-        function checkForWin(rowColumnOrDiagonal) {
-            for (var rowOrColumn = 0; rowOrColumn <= 2; rowOrColumn++) {
-                var gameRowColumnOrDiagonal = gameGrid.getRowOrColumnXsAndOs(rowColumnOrDiagonal, rowOrColumn).join('');
-                        if (gameRowColumnOrDiagonal === XXX || gameRowColumnOrDiagonal === OOO) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        return false;
+        return winningStripe.length > 0 && winningStripe[0];
     }
 
     function setSquareSelected(squareNumber, xOrO) {
@@ -142,22 +159,15 @@ var tictactoe = (function () {
 
     function findIminentWin() {
         //identify square to occupy to prevent opponent win on next move
-        return checkForIminentWin('row') || checkForIminentWin('col') || checkForIminentWin('diag1') || checkForIminentWin('diag2');
+        var iminentWinningStripe = gameGrid.getStripesMeetingCriteria(function (stripe) {
+            return 'XX' === gameGrid.getXsAndOs(stripe);
+        });
 
-        function checkForIminentWin(rowColumnOrDiagonal) {
-            for (var rowOrColumn = 0; rowOrColumn <= 2; rowOrColumn++) {
-                var gameRowColumnOrDiagonal = gameGrid.getRowOrColumn(rowColumnOrDiagonal, rowOrColumn),
-                    xsAndOs = gameRowColumnOrDiagonal.map(function (square) {
-                        return square.xOrO;
-                    })
-                    .join('');
-                if ('XX' === xsAndOs) {
-                    var squareToBlock = gameRowColumnOrDiagonal.filter(function (square) {
-                        return !square.xOrO;
-                    })[0].squareNumber
-                    return { squareToBlock: squareToBlock }
-                }
-            }
+        if (iminentWinningStripe.length > 0) {
+            var squareToBlock = iminentWinningStripe[0].filter(function (square) {
+                return !square.xOrO;
+            })[0].squareNumber
+            return { squareToBlock: squareToBlock }
         }
     }
 
