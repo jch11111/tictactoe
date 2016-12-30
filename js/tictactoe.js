@@ -3,18 +3,19 @@ var tictactoe = (function () {
     var ROW = 1,
         COLUMN = 2,
         COMPUTER = true,
-        USER = false,
+        PLAYER = false,
         X = 'X',
         O = 'O',
         rowAndColumnHeight = 75,
         nonClickableDivider = 5,
         padding = 0.2 * rowAndColumnHeight,
-        whoseTurn = USER,
+        whoseTurn = PLAYER,
         XXX = 'XXX',
         OOO = 'OOO',
         gameStatus,
         GAME_IN_PLAY = 0,
-        GAME_OVER = 1
+        GAME_OVER = 1,
+        whoGoesFirst = PLAYER;
 
     function init() {
         $(function () {
@@ -23,6 +24,11 @@ var tictactoe = (function () {
             gameGrid.drawGame($('canvas'));
         })
     };
+
+    function setWhoseTurn(who) {
+        whoseTurn = who;
+        $('#whoseTurn').text(whoseTurn === PLAYER ? 'your turn' : 'computer\'s turn');
+    }
 
     function setEventHandlers() {
         $('canvas').click(function (e) {
@@ -34,6 +40,13 @@ var tictactoe = (function () {
         if (gameStatus === GAME_OVER) {
             gameGrid.refreshGame($('canvas'));
             gameStatus = GAME_IN_PLAY;
+            whoGoesFirst = !whoGoesFirst;
+            setWhoseTurn(whoGoesFirst)
+            if (whoGoesFirst === COMPUTER) {
+                setTimeout(function () {
+                    doComputersTurn();
+                }, 2000);
+            }
             return;
         }
 
@@ -56,9 +69,9 @@ var tictactoe = (function () {
 
         if (checkIfGameOver()) {
             gameStatus = GAME_OVER;
-            console.log('game over');
+            $('#whoseTurn').text('gane over!')
         } else {
-            whoseTurn = !whoseTurn;
+            setWhoseTurn(!whoseTurn);
 
             setTimeout(function () {
                 doComputersTurn();
@@ -105,10 +118,10 @@ var tictactoe = (function () {
 
         if (checkIfGameOver()) {
             gameStatus = GAME_OVER;
-            console.log('game over!');
+            $('#whoseTurn').text('gane over!')
+        } else {
+            setWhoseTurn(!whoseTurn);
         }
-
-        whoseTurn = !whoseTurn;
     }
 
     function findIminentWin(xOrO) {
