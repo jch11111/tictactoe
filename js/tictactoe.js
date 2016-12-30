@@ -121,7 +121,7 @@ var tictactoe = (function () {
             squareToPlay;
 
         if (iminentWin) {
-            squareToPlay = iminentWin;
+            squareToPlay = iminentWin.squareToBlock;
         } else {
             squareToPlay = Math.floor(Math.random() * 9);
 
@@ -152,9 +152,10 @@ var tictactoe = (function () {
                     })
                     .join('');
                 if ('XX' === xsAndOs) {
-                    return gameRowColumnOrDiagonal.filter(function (square) {
+                    var squareToBlock = gameRowColumnOrDiagonal.filter(function (square) {
                         return !square.xOrO;
-                    })[0].squareNumber;
+                    })[0].squareNumber
+                    return { squareToBlock: squareToBlock }
                 }
             }
         }
