@@ -73,11 +73,14 @@ var tictactoe = (function () {
     }
 
     function doComputersTurn() {
-        var iminentWin = findIminentWin(),
+        var iminentPlayerWin,
+            iminentComputerWin,
             squareToPlay;
 
-        if (iminentWin) {
-            squareToPlay = iminentWin.squareToBlock;
+        if (iminentComputerWin = findIminentWin(O)) {
+            squareToPlay = iminentComputerWin.unoccupiedSquare;
+        } else if (iminentPlayerWin = findIminentWin(X)) {
+            squareToPlay = iminentPlayerWin.unoccupiedSquare;
         } else {
             squareToPlay = Math.floor(Math.random() * 9);
 
@@ -96,17 +99,18 @@ var tictactoe = (function () {
         whoseTurn = !whoseTurn;
     }
 
-    function findIminentWin() {
+    function findIminentWin(xOrO) {
         //identify square to occupy to prevent opponent win on next move
-        var iminentWinningStripe = gameGrid.getStripesMeetingCriteria(function (stripe) {
-            return 'XX' === gameGrid.getXsAndOs(stripe);
+        var iminentWinStripes = gameGrid.getStripesMeetingCriteria(function (stripe) {
+            var twoXsOrOs = xOrO + xOrO;
+            return twoXsOrOs === gameGrid.getXsAndOs(stripe);
         });
 
-        if (iminentWinningStripe.length > 0) {
-            var squareToBlock = iminentWinningStripe[0].filter(function (square) {
-                return !square.xOrO;
+        if (iminentWinStripes.length) {
+            var unoccupiedSquare = iminentWinStripes[0].filter(function (square) {
+                return !square.xOrO;  //unoccuied square is the square to block to prevent player win
             })[0].squareNumber
-            return { squareToBlock: squareToBlock }
+            return { unoccupiedSquare: unoccupiedSquare }
         }
     }
 
