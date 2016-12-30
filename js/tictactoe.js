@@ -15,7 +15,8 @@ var tictactoe = (function () {
         gameStatus,
         GAME_IN_PLAY = 0,
         GAME_OVER = 1,
-        whoGoesFirst = PLAYER;
+        whoGoesFirst = PLAYER,
+        playNumber = 0;
 
     function init() {
         $(function () {
@@ -36,17 +37,21 @@ var tictactoe = (function () {
         });
     }
 
+    function restartGame() {
+        gameGrid.refreshGame($('canvas'));
+        gameStatus = GAME_IN_PLAY;
+        whoGoesFirst = !whoGoesFirst;
+        setWhoseTurn(whoGoesFirst)
+        if (whoGoesFirst === COMPUTER) {
+            setTimeout(function () {
+                doComputersTurn();
+            }, 2000);
+        }
+    }
+
     function handleCanvasClick(x, y) {
         if (gameStatus === GAME_OVER) {
-            gameGrid.refreshGame($('canvas'));
-            gameStatus = GAME_IN_PLAY;
-            whoGoesFirst = !whoGoesFirst;
-            setWhoseTurn(whoGoesFirst)
-            if (whoGoesFirst === COMPUTER) {
-                setTimeout(function () {
-                    doComputersTurn();
-                }, 2000);
-            }
+            restartGame();
             return;
         }
 
@@ -63,6 +68,13 @@ var tictactoe = (function () {
         if (gameGrid.squares[squareNumber].xOrO) {
             return;  //square is already taken
         }
+
+        doPlayersTurn(squareNumber);
+
+    }
+
+    function doPlayersTurn(squareNumber) {
+        playNumber++;
 
         setSquareSelected(squareNumber, X);
         drawX(squareNumber);
@@ -100,6 +112,8 @@ var tictactoe = (function () {
         var iminentPlayerWin,
             iminentComputerWin,
             squareToPlay;
+
+        playNumber++;
 
         if (iminentComputerWin = findIminentWin(O)) {
             squareToPlay = iminentComputerWin.unoccupiedSquare;
