@@ -49,10 +49,16 @@ var tictactoe = (function () {
     }
 
     function restartGame() {
+        playNumber = 0;
+        isPlayerOnEdge = false;
+        isPlayerCentered = false;
+        isPlayerStartOnCorner = false;
+        isPlayerStartOnEdge = false;
+
         gameGrid.refreshGame($('canvas'));
         gameStatus = GAME_IN_PLAY;
         whoGoesFirst = !whoGoesFirst;
-        setWhoseTurn(whoGoesFirst)
+        setWhoseTurn(whoGoesFirst);
         if (whoGoesFirst === COMPUTER) {
             setTimeout(function () {
                 doComputersTurn();
@@ -311,15 +317,15 @@ var tictactoe = (function () {
             isThirdColumn = rowAndColumnHeight * 2 + nonClickableDivider < x && x < rowAndColumnHeight * 3 - nonClickableDivider;
 
         if (isFirstRow) {
-            squareNumber = (isFirstColumn) ? 0 : ((isSecondColumn ? 1 : (isThirdColumn ? 2: 0)));
+            squareNumber = (isFirstColumn) ? 0 : ((isSecondColumn ? 1 : (isThirdColumn ? 2: NaN)));
         }
 
         if (isSecondRow) {
-            squareNumber = (isFirstColumn) ? 3 : ((isSecondColumn ? 4 : (isThirdColumn ? 5 : 0)));
+            squareNumber = (isFirstColumn) ? 3 : ((isSecondColumn ? 4 : (isThirdColumn ? 5 : NaN)));
         }
 
         if (isThirdRow) {
-            squareNumber = (isFirstColumn) ? 6 : ((isSecondColumn ? 7 : (isThirdColumn ? 8 : 0)));
+            squareNumber = (isFirstColumn) ? 6 : ((isSecondColumn ? 7 : (isThirdColumn ? 8 : NaN)));
         }
 
         return squareNumber;
