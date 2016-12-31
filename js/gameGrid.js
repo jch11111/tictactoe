@@ -1,92 +1,23 @@
 var gameGrid = (function () {
 
     var rowAndColumnHeight = 75,
+        padding = 0.2 * rowAndColumnHeight,
+        nonClickableDivider = 5,
+        X = 'X',
+        O = 'O',
+        XXX = 'XXX',
+        OOO = 'OOO',
         squares = [
-        { squareNumber: 0, isCorner: true, isCorner: true, origin: { x: 0, y: 0 }, position: { row: 0, col: 0, diag1: true } },
-        { squareNumber: 1, isCorner: false, origin: { x: rowAndColumnHeight, y: 0 }, position: { row: 0, col: 1 } },
-        { squareNumber: 2, isCorner: true, origin: { x: rowAndColumnHeight * 2, y: 0 }, position: { row: 0, col: 2, diag2: true } },
-        { squareNumber: 3, isCorner: false, origin: { x: 0, y: rowAndColumnHeight }, position: { row: 1, col: 0 } },
-        { squareNumber: 4, isCorner: false, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight }, position: { row: 1, col: 1, diag1: true, diag2: true } },
-        { squareNumber: 5, isCorner: false, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight }, position: { row: 1, col: 2 } },
-        { squareNumber: 6, isCorner: true, origin: { x: 0, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 0, diag2: true } },
-        { squareNumber: 7, isCorner: false, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 1 } },
-        { squareNumber: 8, isCorner: true, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 2, diag1: true } }
+            { squareNumber: 0, isCorner: true, isCorner: true, origin: { x: 0, y: 0 }, position: { row: 0, col: 0, diag1: true } },
+            { squareNumber: 1, isCorner: false, origin: { x: rowAndColumnHeight, y: 0 }, position: { row: 0, col: 1 } },
+            { squareNumber: 2, isCorner: true, origin: { x: rowAndColumnHeight * 2, y: 0 }, position: { row: 0, col: 2, diag2: true } },
+            { squareNumber: 3, isCorner: false, origin: { x: 0, y: rowAndColumnHeight }, position: { row: 1, col: 0 } },
+            { squareNumber: 4, isCorner: false, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight }, position: { row: 1, col: 1, diag1: true, diag2: true } },
+            { squareNumber: 5, isCorner: false, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight }, position: { row: 1, col: 2 } },
+            { squareNumber: 6, isCorner: true, origin: { x: 0, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 0, diag2: true } },
+            { squareNumber: 7, isCorner: false, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 1 } },
+            { squareNumber: 8, isCorner: true, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 2, diag1: true } }
         ];
-
-    function getStripe (direction, rowOrColumnNumber) {
-        return squares.filter(function (square) {
-            if ('diag1' === direction || 'diag2' === direction) {
-                return square.position[direction];
-            } else {
-                return square.position[direction] === rowOrColumnNumber;
-            }
-        })
-    }
-
-    function getXsAndOs (stripe) {
-        return stripe.map(function (square) {
-            return square.xOrO;
-        })
-        .join('');
-    }
-
-    function getSquaresMeetingCriteria(criteriaFunction) {
-        return squares.filter(function (square) {
-            return criteriaFunction(square);
-        });
-    }
-
-    function getAvailableCorners() {
-        return getSquaresMeetingCriteria(function (square) {
-            return square.isCorner && !square.xOrO;
-        });
-    }
-
-    function getAvailableCorner() {
-        var availableCorners = getAvailableCorners();
-        return availableCorners.length && availableCorners[0];
-    }
-
-    function getAvailableEdge() {
-        var availableEdges = getSquaresMeetingCriteria(function (square) {
-            return !square.isCorner && !square.xOrO;
-        });
-        return availableEdges.length && availableEdges[0];
-    }
-
-    function getStripesMeetingCriteria (criteriaFunction) {
-        var stripes = [],
-            me = this;
-
-        getStripes('row');
-        getStripes('col');
-        getStripes('diag1');
-        getStripes('diag2');
-
-        function getStripes(direction) {
-            var stripe;
-            if ('diag1' === direction || 'diag2' === direction) {
-                stripe = getStripe(direction);
-                if (criteriaFunction(stripe)) {
-                    stripes.push(stripe);
-                }
-            } else {
-                for (var squareNumber = 0; squareNumber <= 2; squareNumber++) {
-                    stripe = getStripe(direction, squareNumber);
-                    if (criteriaFunction(stripe)) {
-                        stripes.push(stripe);
-                    }
-                }
-            }
-        }
-        return stripes;
-    }
-        
-    function getNumberOfOccupiedSquares () {
-        return this.squares.filter(function (square) {
-            return square.xOrO;
-        }).length;
-    }
 
     function clear(canvas) {
         canvas = canvas[0];
@@ -95,16 +26,6 @@ var gameGrid = (function () {
         var w = canvas.width;
         canvas.width = 1;
         canvas.width = w;
-    }
-
-    function refreshGame(canvas) {
-        clear(canvas);
-        drawGame(canvas);
-        squares.forEach(function (square) {
-            if (square.xOrO) {
-                delete square.xOrO;
-            }
-        })
     }
 
     function drawGame(canvas) {
@@ -134,31 +55,200 @@ var gameGrid = (function () {
         })
     }
 
-    function getNumberOfAvailableCorners() {
-        return getAvailableCorners().length;
+    function drawX($canvas, squareNumber) {
+        var squareOriginX = squares[squareNumber].origin.x,
+            squareOriginY = squares[squareNumber].origin.y,
+            startX = squareOriginX + padding,
+            startY = squareOriginY + padding,
+            endX = startX + rowAndColumnHeight - (2 * padding),
+            endY = startY + rowAndColumnHeight - (2 * padding),
+            temp;
+
+        $canvas.drawLine({
+            strokeStyle: '#F00',
+            strokeWidth: 5,
+            x1: startX, y1: startY,
+            x2: endX, y2: endY
+        });
+
+        temp = startY;
+        startY = endY;
+        endY = temp;
+
+        $canvas.drawLine({
+            strokeStyle: '#F00',
+            strokeWidth: 5,
+            x1: startX, y1: startY,
+            x2: endX, y2: endY
+        });
+    }
+
+    function drawO($canvas, squareNumber) {
+        var squareOriginX = squares[squareNumber].origin.x,
+            squareOriginY = squares[squareNumber].origin.y,
+            centerX = squareOriginX + rowAndColumnHeight / 2,
+            centerY = squareOriginY + rowAndColumnHeight / 2,
+            circleWidthAndHeight = rowAndColumnHeight - (2 * padding);
+
+        $canvas.drawEllipse({
+            strokeStyle: '#0F0',
+            strokeWidth: 5,
+            x: centerX, y: centerY,
+            width: circleWidthAndHeight, height: circleWidthAndHeight
+        });
+
+    }
+
+    function getAvailableCorner() {
+        var availableCorners = getSquaresMeetingCriteria(function (square) {
+            return square.isCorner && !square.xOrO;
+        });
+        return availableCorners.length && availableCorners;
+    }
+
+    function getAvailableEdge() {
+        var availableEdges = getSquaresMeetingCriteria(function (square) {
+            return !square.isCorner && !square.xOrO;
+        });
+        return availableEdges.length && availableEdges;
+    }
+
+    function getAvailableSquares(edgesCornersOrAll) {
+        if ('edge' === edgesCornersOrAll) {
+            return getAvailableEdge();
+        } else if ('corner' === edgesCornersOrAll) {
+            return getAvailableCorner();
+        } else {
+            return getSquaresMeetingCriteria(function (square) {
+                return !square.xOrO;
+            });
+        }
     }
 
     function getIminentWinStripes(xOrO) {
         return getStripesMeetingCriteria(function (stripe) {
             var twoXsOrOs = xOrO + xOrO;
-            return twoXsOrOs === gameGrid.getXsAndOs(stripe);
+            return twoXsOrOs === getXsAndOsFromStripe(stripe);
         });
     }
 
-    return {
-        squares: squares,
-        getNumberOfOccupiedSquares: getNumberOfOccupiedSquares,
-        getStripe: getStripe,
-        getStripesMeetingCriteria: getStripesMeetingCriteria,
-        getXsAndOs: getXsAndOs,
-        clear: clear,
-        drawGame: drawGame,
-        refreshGame: refreshGame,
-        getSquaresMeetingCriteria: getSquaresMeetingCriteria,
-        getAvailableCorner: getAvailableCorner,
-        getAvailableEdge: getAvailableEdge,
-        getNumberOfAvailableCorners: getNumberOfAvailableCorners,
-        getIminentWinStripes: getIminentWinStripes
+    function getSquaresMeetingCriteria(criteriaFunction) {
+        return squares.filter(function (square) {
+            return criteriaFunction(square);
+        });
     }
 
+    function getSquareNumberFromXYCoord(x, y) {
+        var squareNumber,
+            isFirstRow = nonClickableDivider < y && y < rowAndColumnHeight - nonClickableDivider,
+            isSecondRow = rowAndColumnHeight + nonClickableDivider < y && y < rowAndColumnHeight * 2 - nonClickableDivider,
+            isThirdRow = rowAndColumnHeight * 2 + nonClickableDivider < y && y < rowAndColumnHeight * 3 - nonClickableDivider,
+            isFirstColumn = nonClickableDivider < x && x < rowAndColumnHeight - nonClickableDivider,
+            isSecondColumn = rowAndColumnHeight + nonClickableDivider < x && x < rowAndColumnHeight * 2 - nonClickableDivider,
+            isThirdColumn = rowAndColumnHeight * 2 + nonClickableDivider < x && x < rowAndColumnHeight * 3 - nonClickableDivider;
+
+        if (isFirstRow) {
+            squareNumber = (isFirstColumn) ? 0 : ((isSecondColumn ? 1 : (isThirdColumn ? 2 : NaN)));
+        }
+
+        if (isSecondRow) {
+            squareNumber = (isFirstColumn) ? 3 : ((isSecondColumn ? 4 : (isThirdColumn ? 5 : NaN)));
+        }
+
+        if (isThirdRow) {
+            squareNumber = (isFirstColumn) ? 6 : ((isSecondColumn ? 7 : (isThirdColumn ? 8 : NaN)));
+        }
+
+        return squareNumber;
+    }
+
+    function getSquareValue(squareNumber) {
+        return squares[squareNumber].xOrO;
+    }
+
+    function getStripe (direction, rowOrColumnNumber) {
+        return squares.filter(function (square) {
+            if ('diag1' === direction || 'diag2' === direction) {
+                return square.position[direction];
+            } else {
+                return square.position[direction] === rowOrColumnNumber;
+            }
+        })
+    }
+
+    function getStripesMeetingCriteria (criteriaFunction) {
+        var stripes = [],
+            me = this;
+
+        getStripes('row');
+        getStripes('col');
+        getStripes('diag1');
+        getStripes('diag2');
+
+        function getStripes(direction) {
+            var stripe;
+            if ('diag1' === direction || 'diag2' === direction) {
+                stripe = getStripe(direction);
+                if (criteriaFunction(stripe)) {
+                    stripes.push(stripe);
+                }
+            } else {
+                for (var squareNumber = 0; squareNumber <= 2; squareNumber++) {
+                    stripe = getStripe(direction, squareNumber);
+                    if (criteriaFunction(stripe)) {
+                        stripes.push(stripe);
+                    }
+                }
+            }
+        }
+        return stripes;
+    }
+
+    function getWinningStripe() {
+        return getStripesMeetingCriteria(function (stripe) {
+            var stripeXsAndOs = getXsAndOsFromStripe(stripe);
+            return stripeXsAndOs === XXX || stripeXsAndOs === OOO;
+        });
+    }
+
+    function getXorOSquares(xOrO) {
+        return getSquaresMeetingCriteria(function (square) {
+            return square.xOrO && square.xOrO === xOrO;
+        });
+    }
+
+    function getXsAndOsFromStripe (stripe) {
+        return stripe.map(function (square) {
+            return square.xOrO;
+        })
+        .join('');
+    }
+
+    function refreshGame(canvas) {
+        clear(canvas);
+        drawGame(canvas);
+        squares.forEach(function (square) {
+            if (square.xOrO) {
+                delete square.xOrO;
+            }
+        })
+    }
+
+    function setSquareValue($canvas, squareNumber, xOrO) {
+        squares[squareNumber].xOrO = xOrO;
+        X === xOrO ? drawX($canvas, squareNumber) : drawO($canvas, squareNumber);
+    }
+
+    return {
+        clear: clear,
+        drawGame: drawGame,
+        getAvailableSquares: getAvailableSquares,
+        getIminentWinStripes: getIminentWinStripes,
+        getSquareNumberFromXYCoord: getSquareNumberFromXYCoord,
+        getSquareValue: getSquareValue,
+        getWinningStripe: getWinningStripe,
+        getXorOSquares: getXorOSquares,
+        refreshGame: refreshGame,
+        setSquareValue: setSquareValue
+    }
 }());
