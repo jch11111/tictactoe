@@ -9,20 +9,27 @@ var tictactoe = (function () {
         rowAndColumnHeight = 75,
         nonClickableDivider = 5,
         padding = 0.2 * rowAndColumnHeight,
-        whoseTurn = PLAYER,
+        whoseTurn = COMPUTER,
         XXX = 'XXX',
         OOO = 'OOO',
         gameStatus,
         GAME_IN_PLAY = 0,
         GAME_OVER = 1,
-        whoGoesFirst = PLAYER,
-        playNumber = 0;
+        whoGoesFirst = COMPUTER,
+        playNumber = 0,
+        CENTER_SQUARE = 4;
 
     function init() {
         $(function () {
             setEventHandlers();
             gameStatus = GAME_IN_PLAY;
             gameGrid.drawGame($('canvas'));
+            if (whoGoesFirst === COMPUTER) {
+                $('#whoseTurn').text('computer\'s turn');
+                setTimeout(function () {
+                    doComputersTurn();
+                }, 2000);
+            }
         })
     };
 
@@ -111,15 +118,32 @@ var tictactoe = (function () {
     function doComputersTurn() {
         var iminentPlayerWin,
             iminentComputerWin,
-            squareToPlay;
+            squareToPlay = -1;
 
         playNumber++;
 
         if (iminentComputerWin = findIminentWin(O)) {
             squareToPlay = iminentComputerWin.unoccupiedSquare;
-        } else if (iminentPlayerWin = findIminentWin(X)) {
+        }
+
+        if (iminentPlayerWin = findIminentWin(X)) {
             squareToPlay = iminentPlayerWin.unoccupiedSquare;
-        } else {
+        } 
+
+        if (whoGoesFirst === COMPUTER && 1 === playNumber) {
+            squareToPlay = 0; //always start in top left corner if computer first
+        }
+
+        if (whoGoesFirst === COMPUTER && 3 === playNumber) {
+            var playerSquare = gameGrid.getSquaresMeetingCriteria(function (square) {
+                return square.xOrO && square.xOrO === X;
+            })[0],
+            isEdge = !playerSquare.isCorner;
+            
+            squareToPlay = CENTER_SQUARE; 
+        }
+        
+        if (-1 === squareToPlay) {
             squareToPlay = Math.floor(Math.random() * 9);
 
             while (gameGrid.squares[squareToPlay].xOrO) {

@@ -2,16 +2,16 @@ var gameGrid = (function () {
 
     var rowAndColumnHeight = 75,
         squares = [
-        { squareNumber: 0, origin: { x: 0, y: 0 }, position: { row: 0, col: 0, diag1: true } },
-        { squareNumber: 1, origin: { x: rowAndColumnHeight, y: 0 }, position: { row: 0, col: 1 } },
-        { squareNumber: 2, origin: { x: rowAndColumnHeight * 2, y: 0 }, position: { row: 0, col: 2, diag2: true } },
-        { squareNumber: 3, origin: { x: 0, y: rowAndColumnHeight }, position: { row: 1, col: 0 } },
-        { squareNumber: 4, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight }, position: { row: 1, col: 1, diag1: true, diag2: true } },
-        { squareNumber: 5, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight }, position: { row: 1, col: 2 } },
-        { squareNumber: 6, origin: { x: 0, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 0, diag2: true } },
-        { squareNumber: 7, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 1 } },
-        { squareNumber: 8, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 2, diag1: true } }
-    ];
+        { squareNumber: 0, isCorner: true, isCorner: true, origin: { x: 0, y: 0 }, position: { row: 0, col: 0, diag1: true } },
+        { squareNumber: 1, isCorner: false, origin: { x: rowAndColumnHeight, y: 0 }, position: { row: 0, col: 1 } },
+        { squareNumber: 2, isCorner: true, origin: { x: rowAndColumnHeight * 2, y: 0 }, position: { row: 0, col: 2, diag2: true } },
+        { squareNumber: 3, isCorner: false, origin: { x: 0, y: rowAndColumnHeight }, position: { row: 1, col: 0 } },
+        { squareNumber: 4, isCorner: false, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight }, position: { row: 1, col: 1, diag1: true, diag2: true } },
+        { squareNumber: 5, isCorner: false, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight }, position: { row: 1, col: 2 } },
+        { squareNumber: 6, isCorner: true, origin: { x: 0, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 0, diag2: true } },
+        { squareNumber: 7, isCorner: false, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 1 } },
+        { squareNumber: 8, isCorner: true, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 2, diag1: true } }
+        ];
 
     function getStripe (direction, rowOrColumnNumber) {
         return squares.filter(function (square) {
@@ -28,6 +28,12 @@ var gameGrid = (function () {
             return square.xOrO;
         })
         .join('');
+    }
+
+    function getSquaresMeetingCriteria(criteriaFunction) {
+        return squares.filter(function (square) {
+            return criteriaFunction(square);
+        });
     }
 
     function getStripesMeetingCriteria (criteriaFunction) {
@@ -117,7 +123,8 @@ var gameGrid = (function () {
         getXsAndOs: getXsAndOs,
         clear: clear,
         drawGame: drawGame,
-        refreshGame: refreshGame
+        refreshGame: refreshGame,
+        getSquaresMeetingCriteria: getSquaresMeetingCriteria
     }
 
 }());
