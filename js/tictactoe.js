@@ -22,6 +22,7 @@ var tictactoe = (function () {
         isPlayerCentered,
         isPlayerStartOnCorner;
 
+
     function init() {
         $(function () {
             setEventHandlers();
@@ -121,6 +122,8 @@ var tictactoe = (function () {
     function doComputersTurn() {
         var iminentPlayerWin,
             iminentComputerWin,
+            checkMateSquareComputer,
+            checkMateSquarePlayer,
             squareToPlay = -1;
 
         playNumber++;
@@ -131,7 +134,15 @@ var tictactoe = (function () {
 
         if (-1 === squareToPlay && (iminentPlayerWin = findIminentWin(X))) {
             squareToPlay = iminentPlayerWin.unoccupiedSquare;
-        } 
+        }
+
+        if (-1 === squareToPlay && (checkMateSquareComputer = findCheckmate(O))) {
+            squareToPlay = checkMateSquareComputer.checkMateSquareNumber
+        }
+
+        if (-1 === squareToPlay && (checkMateSquarePlayer = findCheckmate(X))) {
+            squareToPlay = checkMateSquarePlayer.checkMateSquareNumber
+        }
 
         if (-1 === squareToPlay && whoGoesFirst === COMPUTER && 1 === playNumber) {
             squareToPlay = 0; //always start in top left corner if computer first
@@ -155,23 +166,6 @@ var tictactoe = (function () {
             }
         }
 
-        if (-1 === squareToPlay && whoGoesFirst === COMPUTER && 5 === playNumber) {
-            if (isPlayerOnEdge) {
-                var diagonal1 = gameGrid.getXsAndOs(gameGrid.getStripe('diag1')),
-                    column1 = gameGrid.getXsAndOs(gameGrid.getStripe('col', 0));
-
-                if ('OOX' === diagonal1 && 'O' === column1) {
-                    squareToPlay = 6;
-                }
-                if ('OOX' === diagonal1 && 'OX' === column1) {
-                    squareToPlay = 2;
-                }
-            } else {
-                var availableCorner = gameGrid.getAvailableCorner();
-                squareToPlay = availableCorner && availableCorner.squareNumber;
-            }
-        }
-
         if (-1 === squareToPlay && whoGoesFirst === PLAYER && 2 === playNumber) {
             var playerSquare = gameGrid.getSquaresMeetingCriteria(function (square) {
                 return square.xOrO && square.xOrO === X;
@@ -180,11 +174,10 @@ var tictactoe = (function () {
             if (playerSquare.isCorner) {
                 isPlayerStartOnCorner = true;
                 squareToPlay = CENTER_SQUARE;
+            } else if (playerSquare.squareNumber === CENTER_SQUARE) {
+                var availableCorner = gameGrid.getAvailableCorner();
+                squareToPlay = availableCorner && availableCorner.squareNumber;
             }
-
-            //isPlayerCentered = CENTER_SQUARE === playerSquare.squareNumber;
-            //isPlayerOnEdge = !playerSquare.isCorner && !isPlayerCentered;
-
         }
         
         if (-1 === squareToPlay && whoGoesFirst === PLAYER && 4 === playNumber) {
@@ -217,10 +210,7 @@ var tictactoe = (function () {
 
     function findIminentWin(xOrO) {
         //identify square to occupy to prevent opponent win on next move
-        var iminentWinStripes = gameGrid.getStripesMeetingCriteria(function (stripe) {
-            var twoXsOrOs = xOrO + xOrO;
-            return twoXsOrOs === gameGrid.getXsAndOs(stripe);
-        });
+        var iminentWinStripes = gameGrid.getIminentWinStripes(xOrO);
 
         if (iminentWinStripes.length) {
             var unoccupiedSquare = iminentWinStripes[0].filter(function (square) {
@@ -228,6 +218,31 @@ var tictactoe = (function () {
             })[0].squareNumber
             return { unoccupiedSquare: unoccupiedSquare }
         }
+    }
+
+    function findCheckmate(xOrO) {
+        var checkMateSquareNumber,
+            availableSquares = gameGrid.getSquaresMeetingCriteria(function (square) {
+                return !square.xOrO;
+            }),
+            iminentWinStripes;
+
+        availableSquares.forEach(function (availableSquare) {
+            availableSquare.xOrO = xOrO;    //temporarily set xOrO so we can test if this creates a checkmate
+
+            if (gameGrid.getIminentWinStripes(xOrO).length === 2) {
+                if (checkMateSquareNumber) {
+                    checkMateSquareNumber = null;
+                } else {
+                    checkMateSquareNumber = availableSquare.squareNumber;
+                }
+            }
+
+            delete availableSquare.xOrO;    //reset
+        });
+
+
+        return checkMateSquareNumber && { checkMateSquareNumber: checkMateSquareNumber };
     }
 
     function drawX(squareNumber) {

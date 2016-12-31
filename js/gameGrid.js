@@ -138,6 +138,13 @@ var gameGrid = (function () {
         return getAvailableCorners().length;
     }
 
+    function getIminentWinStripes(xOrO) {
+        return getStripesMeetingCriteria(function (stripe) {
+            var twoXsOrOs = xOrO + xOrO;
+            return twoXsOrOs === gameGrid.getXsAndOs(stripe);
+        });
+    }
+
     return {
         squares: squares,
         getNumberOfOccupiedSquares: getNumberOfOccupiedSquares,
@@ -150,7 +157,8 @@ var gameGrid = (function () {
         getSquaresMeetingCriteria: getSquaresMeetingCriteria,
         getAvailableCorner: getAvailableCorner,
         getAvailableEdge: getAvailableEdge,
-        getNumberOfAvailableCorners: getNumberOfAvailableCorners
+        getNumberOfAvailableCorners: getNumberOfAvailableCorners,
+        getIminentWinStripes: getIminentWinStripes
     }
 
 }());
