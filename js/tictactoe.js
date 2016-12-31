@@ -20,8 +20,8 @@ var tictactoe = (function () {
         CENTER_SQUARE = 4,
         isPlayerOnEdge,
         isPlayerCentered,
-        isPlayerStartOnCorner;
-
+        isPlayerStartOnCorner,
+        isPlayerStartOnEdge;
 
     function init() {
         $(function () {
@@ -128,6 +128,10 @@ var tictactoe = (function () {
 
         playNumber++;
 
+        function getNearestCornerToEdge(edgeSquareNumber) {
+            return edgeSquareNumber < 5 ? 0 : 8;
+        }
+
         if (iminentComputerWin = findIminentWin(O)) {
             squareToPlay = iminentComputerWin.unoccupiedSquare;
         }
@@ -177,15 +181,21 @@ var tictactoe = (function () {
             } else if (playerSquare.squareNumber === CENTER_SQUARE) {
                 var availableCorner = gameGrid.getAvailableCorner();
                 squareToPlay = availableCorner && availableCorner.squareNumber;
+            } else {
+                isPlayerStartOnEdge = true;
+                squareToPlay = getNearestCornerToEdge(playerSquare.squareNumber)
             }
         }
         
         if (-1 === squareToPlay && whoGoesFirst === PLAYER && 4 === playNumber) {
             if (isPlayerStartOnCorner) {
-                if (2 === gameGrid.getNumberOfAvailableCorners()) {
-                    var availableEdge = gameGrid.getAvailableEdge();
-                    squareToPlay = availableEdge && availableEdge.squareNumber;
-                }
+                var availableEdge = gameGrid.getAvailableEdge();
+                squareToPlay = availableEdge && availableEdge.squareNumber;
+            } else if (!gameGrid.squares[CENTER_SQUARE].xOrO) {
+                squareToPlay = CENTER_SQUARE;
+            } else {
+                var availableCorner = gameGrid.getAvailableCorner();
+                squareToPlay = availableCorner && availableCorner.squareNumber;
             }
         }
 
@@ -206,6 +216,8 @@ var tictactoe = (function () {
         } else {
             setWhoseTurn(!whoseTurn);
         }
+
+
     }
 
     function findIminentWin(xOrO) {
@@ -231,7 +243,7 @@ var tictactoe = (function () {
             availableSquare.xOrO = xOrO;    //temporarily set xOrO so we can test if this creates a checkmate
 
             if (gameGrid.getIminentWinStripes(xOrO).length === 2) {
-                if (checkMateSquareNumber) {
+                if (!isNaN(checkMateSquareNumber)) {
                     checkMateSquareNumber = null;
                 } else {
                     checkMateSquareNumber = availableSquare.squareNumber;
