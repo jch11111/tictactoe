@@ -42,11 +42,11 @@ var tictactoe = (function () {
         }
 
         if (iminentComputerWin = findIminentWin(O)) {
-            squareToPlay = iminentComputerWin.unoccupiedSquare;
+            squareToPlay = iminentComputerWin.squareToBlockWin;
         }
 
         if (-1 === squareToPlay && (iminentPlayerWin = findIminentWin(X))) {
-            squareToPlay = iminentPlayerWin.unoccupiedSquare;
+            squareToPlay = iminentPlayerWin.squareToBlockWin;
         }
 
         if (-1 === squareToPlay && (checkMateSquareComputer = findCheckmate(O))) {
@@ -169,10 +169,10 @@ var tictactoe = (function () {
         var iminentWinStripes = gameGrid.getIminentWinStripes(xOrO);
 
         if (iminentWinStripes.length) {
-            var unoccupiedSquare = iminentWinStripes[0].filter(function (square) {
+            var squareToBlockWin = iminentWinStripes[0].filter(function (square) {
                 return !square.xOrO;  //unoccuied square is the square to block to prevent player win
             })[0].squareNumber
-            return { unoccupiedSquare: unoccupiedSquare }
+            return { squareToBlockWin: squareToBlockWin }
         }
     }
 
