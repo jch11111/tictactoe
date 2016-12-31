@@ -9,15 +9,18 @@ var tictactoe = (function () {
         rowAndColumnHeight = 75,
         nonClickableDivider = 5,
         padding = 0.2 * rowAndColumnHeight,
-        whoseTurn = COMPUTER,
+        whoseTurn = PLAYER,
         XXX = 'XXX',
         OOO = 'OOO',
         gameStatus,
         GAME_IN_PLAY = 0,
         GAME_OVER = 1,
-        whoGoesFirst = COMPUTER,
+        whoGoesFirst = PLAYER,
         playNumber = 0,
-        CENTER_SQUARE = 4;
+        CENTER_SQUARE = 4,
+        isPlayerOnEdge,
+        isPlayerCentered,
+        isPlayerStartOnCorner;
 
     function init() {
         $(function () {
@@ -126,23 +129,73 @@ var tictactoe = (function () {
             squareToPlay = iminentComputerWin.unoccupiedSquare;
         }
 
-        if (iminentPlayerWin = findIminentWin(X)) {
+        if (-1 === squareToPlay && (iminentPlayerWin = findIminentWin(X))) {
             squareToPlay = iminentPlayerWin.unoccupiedSquare;
         } 
 
-        if (whoGoesFirst === COMPUTER && 1 === playNumber) {
+        if (-1 === squareToPlay && whoGoesFirst === COMPUTER && 1 === playNumber) {
             squareToPlay = 0; //always start in top left corner if computer first
         }
 
-        if (whoGoesFirst === COMPUTER && 3 === playNumber) {
+        if (-1 === squareToPlay && whoGoesFirst === COMPUTER && 3 === playNumber) {
             var playerSquare = gameGrid.getSquaresMeetingCriteria(function (square) {
                 return square.xOrO && square.xOrO === X;
-            })[0],
-            isEdge = !playerSquare.isCorner;
-            
-            squareToPlay = CENTER_SQUARE; 
+            })[0];
+
+            isPlayerCentered = CENTER_SQUARE === playerSquare.squareNumber;
+            isPlayerOnEdge = !playerSquare.isCorner && !isPlayerCentered;
+
+            if (isPlayerOnEdge) {
+                squareToPlay = CENTER_SQUARE;
+            }  else if (isPlayerCentered) {
+                squareToPlay = 8;
+            } else {
+                var availableCorner = gameGrid.getAvailableCorner();
+                squareToPlay = availableCorner && availableCorner.squareNumber;
+            }
+        }
+
+        if (-1 === squareToPlay && whoGoesFirst === COMPUTER && 5 === playNumber) {
+            if (isPlayerOnEdge) {
+                var diagonal1 = gameGrid.getXsAndOs(gameGrid.getStripe('diag1')),
+                    column1 = gameGrid.getXsAndOs(gameGrid.getStripe('col', 0));
+
+                if ('OOX' === diagonal1 && 'O' === column1) {
+                    squareToPlay = 6;
+                }
+                if ('OOX' === diagonal1 && 'OX' === column1) {
+                    squareToPlay = 2;
+                }
+            } else {
+                var availableCorner = gameGrid.getAvailableCorner();
+                squareToPlay = availableCorner && availableCorner.squareNumber;
+            }
+        }
+
+        if (-1 === squareToPlay && whoGoesFirst === PLAYER && 2 === playNumber) {
+            var playerSquare = gameGrid.getSquaresMeetingCriteria(function (square) {
+                return square.xOrO && square.xOrO === X;
+            })[0];
+
+            if (playerSquare.isCorner) {
+                isPlayerStartOnCorner = true;
+                squareToPlay = CENTER_SQUARE;
+            }
+
+            //isPlayerCentered = CENTER_SQUARE === playerSquare.squareNumber;
+            //isPlayerOnEdge = !playerSquare.isCorner && !isPlayerCentered;
+
         }
         
+        if (-1 === squareToPlay && whoGoesFirst === PLAYER && 4 === playNumber) {
+            if (isPlayerStartOnCorner) {
+                if (2 === gameGrid.getNumberOfAvailableCorners()) {
+                    var availableEdge = gameGrid.getAvailableEdge();
+                    squareToPlay = availableEdge && availableEdge.squareNumber;
+                }
+            }
+        }
+
         if (-1 === squareToPlay) {
             squareToPlay = Math.floor(Math.random() * 9);
 

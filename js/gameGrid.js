@@ -36,6 +36,24 @@ var gameGrid = (function () {
         });
     }
 
+    function getAvailableCorners() {
+        return getSquaresMeetingCriteria(function (square) {
+            return square.isCorner && !square.xOrO;
+        });
+    }
+
+    function getAvailableCorner() {
+        var availableCorners = getAvailableCorners();
+        return availableCorners.length && availableCorners[0];
+    }
+
+    function getAvailableEdge() {
+        var availableEdges = getSquaresMeetingCriteria(function (square) {
+            return !square.isCorner && !square.xOrO;
+        });
+        return availableEdges.length && availableEdges[0];
+    }
+
     function getStripesMeetingCriteria (criteriaFunction) {
         var stripes = [],
             me = this;
@@ -116,15 +134,23 @@ var gameGrid = (function () {
         })
     }
 
+    function getNumberOfAvailableCorners() {
+        return getAvailableCorners().length;
+    }
+
     return {
         squares: squares,
         getNumberOfOccupiedSquares: getNumberOfOccupiedSquares,
+        getStripe: getStripe,
         getStripesMeetingCriteria: getStripesMeetingCriteria,
         getXsAndOs: getXsAndOs,
         clear: clear,
         drawGame: drawGame,
         refreshGame: refreshGame,
-        getSquaresMeetingCriteria: getSquaresMeetingCriteria
+        getSquaresMeetingCriteria: getSquaresMeetingCriteria,
+        getAvailableCorner: getAvailableCorner,
+        getAvailableEdge: getAvailableEdge,
+        getNumberOfAvailableCorners: getNumberOfAvailableCorners
     }
 
 }());
