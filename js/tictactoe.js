@@ -1,7 +1,6 @@
 var tictactoe = (function () {
 
     var
-        CENTER_SQUARE = 4,
         COMPUTER = true,
         GAME_IN_PLAY = 0,
         GAME_OVER = 1,
@@ -10,22 +9,23 @@ var tictactoe = (function () {
         O = 'O',
         XXX = 'XXX',
         OOO = 'OOO',
-        isPlayerCentered,
-        isPlayerOnEdge,
-        isPlayerStartOnCorner,
-        isPlayerStartOnEdge,
+        firstSquarePlayedByPlayer,
         gameStatus,
         playNumber = 0,
         whoGoesFirst = PLAYER,
-        whoseTurn = PLAYER;
+        whoseTurn = whoGoesFirst;
 
     function checkIfGameOver() {
         if (0 === gameGrid.getAvailableSquares('all').length) {
             return true;
         }
 
-        var winningStripe = gameGrid.getWinningStripe();
-        return winningStripe.length > 0 && winningStripe[0];
+        var winningRow = gameGrid.getWinningRow();
+        return winningRow.length > 0 && winningRow[0];
+    }
+
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
     }
 
     function doComputersTurn() {
@@ -42,62 +42,67 @@ var tictactoe = (function () {
         }
 
         if (iminentComputerWin = findIminentWin(O)) {
+            //win if you can on this play!
             squareToPlay = iminentComputerWin.squareToBlockWin;
         }
 
-        if (-1 === squareToPlay && (iminentPlayerWin = findIminentWin(X))) {
+        if ((iminentPlayerWin = findIminentWin(X)) && -1 === squareToPlay) {
+            //block opponent from winning this play
             squareToPlay = iminentPlayerWin.squareToBlockWin;
         }
 
-        if (-1 === squareToPlay && (checkMateSquareComputer = findCheckmate(O))) {
+        if ((checkMateSquareComputer = findCheckmate(O)) && -1 === squareToPlay) {
+            //create 'checkmate' this play to win next play
             squareToPlay = checkMateSquareComputer.checkMateSquareNumber
         }
 
-        if (-1 === squareToPlay && (checkMateSquarePlayer = findCheckmate(X))) {
+        if ((checkMateSquarePlayer = findCheckmate(X)) && -1 === squareToPlay) {
+            //block opponent from creating a checkmate
             squareToPlay = checkMateSquarePlayer.checkMateSquareNumber
         }
 
-        if (-1 === squareToPlay && whoGoesFirst === COMPUTER && 1 === playNumber) {
+        if (whoGoesFirst === COMPUTER && 1 === playNumber && -1 === squareToPlay) {
             squareToPlay = 0; //always start in top left corner if computer first
         }
 
-        if (-1 === squareToPlay && whoGoesFirst === COMPUTER && 3 === playNumber) {
-            var playerSquare = gameGrid.getXorOSquares(X)[0];
+        if (whoGoesFirst === COMPUTER && 3 === playNumber && -1 === squareToPlay) {
+            firstSquarePlayedByPlayer = deepCopy(gameGrid.getXorOSquares(X)[0]);
 
-            isPlayerCentered = CENTER_SQUARE === playerSquare.squareNumber;
-            isPlayerOnEdge = !playerSquare.isCorner && !isPlayerCentered;
-
-            if (isPlayerOnEdge) {
-                squareToPlay = CENTER_SQUARE;
-            }  else if (isPlayerCentered) {
-                squareToPlay = 8;
-            } else {
+            if (firstSquarePlayedByPlayer.isCorner) {
                 var availableCorner = gameGrid.getAvailableSquares('corner')[0];
                 squareToPlay = availableCorner && availableCorner.squareNumber;
             }
+
+            if (firstSquarePlayedByPlayer.isEdge) {
+                squareToPlay = gameGrid.positions.CENTER;
+            }
+
+            if (firstSquarePlayedByPlayer.isCenter) {
+                squareToPlay = gameGrid.positions.LOWER_RIGHT;
+            }
         }
 
-        if (-1 === squareToPlay && whoGoesFirst === PLAYER && 2 === playNumber) {
-            var playerSquare = gameGrid.getXorOSquares(X)[0];
+        if (whoGoesFirst === PLAYER && 2 === playNumber && -1 === squareToPlay) {
+            firstSquarePlayedByPlayer = deepCopy(gameGrid.getXorOSquares(X)[0]);
 
-            if (playerSquare.isCorner) {
-                isPlayerStartOnCorner = true;
-                squareToPlay = CENTER_SQUARE;
-            } else if (playerSquare.squareNumber === CENTER_SQUARE) {
-                var availableCorner = gameGrid.getAvailableSquares('corner')[0];
-                squareToPlay = availableCorner && availableCorner.squareNumber;
-            } else {
-                isPlayerStartOnEdge = true;
-                squareToPlay = getNearestCornerToEdge(playerSquare.squareNumber)
+            if (firstSquarePlayedByPlayer.isCorner) {
+                squareToPlay = gameGrid.positions.CENTER;
+            }
+
+            if (firstSquarePlayedByPlayer.isCenter) {
+                squareToPlay = gameGrid.getAvailableSquares('corner')[0].squareNumber;
+            }
+
+            if (firstSquarePlayedByPlayer.isEdge) {
+                squareToPlay = getNearestCornerToEdge(firstSquarePlayedByPlayer.squareNumber)
             }
         }
         
-        if (-1 === squareToPlay && whoGoesFirst === PLAYER && 4 === playNumber) {
-            if (isPlayerStartOnCorner) {
-                var availableEdge = gameGrid.getAvailableSquares('edge')[0];
-                squareToPlay = availableEdge && availableEdge.squareNumber;
-            } else if (!gameGrid.getSquareValue(CENTER_SQUARE)) {
-                squareToPlay = CENTER_SQUARE;
+        if (whoGoesFirst === PLAYER && 4 === playNumber && -1 === squareToPlay) {
+            if (firstSquarePlayedByPlayer.isCorner) {
+                squareToPlay = gameGrid.getAvailableSquares('edge')[0].squareNumber;
+            } else if (!gameGrid.getSquareValue(gameGrid.positions.CENTER)) {
+                squareToPlay = gameGrid.positions.CENTER;
             } else {
                 var availableCorner = gameGrid.getAvailableSquares('corner')[0];
                 squareToPlay = availableCorner && availableCorner.squareNumber;
@@ -142,14 +147,17 @@ var tictactoe = (function () {
     }
 
     function findCheckmate(xOrO) {
+        //a 'checkmate' is when a player has 2 different rows with 2 marked squares and one blank. 
+        //this is a checkmate because the opponent can only block 1 row, allowing the player to win on the other row
+        //This function searches for a grid that will create a checkmate for either X or O player
         var checkMateSquareNumber,
-            availableSquares = gameGrid.getAvailableSquares('all'),
-            iminentWinStripes;
+            availableSquares = gameGrid.getAvailableSquares('all'),  //available squares do not have an X or O
+            iminentWinRows;
 
         availableSquares.forEach(function (availableSquare) {
             availableSquare.xOrO = xOrO;    //temporarily set xOrO so we can test if this creates a checkmate
 
-            if (gameGrid.getIminentWinStripes(xOrO).length === 2) {
+            if (gameGrid.getIminentWinRows(xOrO).length === 2) {
                 if (!isNaN(checkMateSquareNumber)) {
                     checkMateSquareNumber = null;
                 } else {
@@ -166,10 +174,10 @@ var tictactoe = (function () {
 
     function findIminentWin(xOrO) {
         //identify square to occupy to prevent opponent win on next move
-        var iminentWinStripes = gameGrid.getIminentWinStripes(xOrO);
+        var iminentWinRows = gameGrid.getIminentWinRows(xOrO);
 
-        if (iminentWinStripes.length) {
-            var squareToBlockWin = iminentWinStripes[0].filter(function (square) {
+        if (iminentWinRows.length) {
+            var squareToBlockWin = iminentWinRows[0].filter(function (square) {
                 return !square.xOrO;  //unoccuied square is the square to block to prevent player win
             })[0].squareNumber
             return { squareToBlockWin: squareToBlockWin }
@@ -211,17 +219,13 @@ var tictactoe = (function () {
                 $('#whoseTurn').text('computer\'s turn');
                 setTimeout(function () {
                     doComputersTurn();
-                }, 2000);
+                }, 1000);
             }
         })
     };
 
     function restartGame() {
         playNumber = 0;
-        isPlayerOnEdge = false;
-        isPlayerCentered = false;
-        isPlayerStartOnCorner = false;
-        isPlayerStartOnEdge = false;
 
         gameGrid.refreshGame($('canvas'));
         gameStatus = GAME_IN_PLAY;

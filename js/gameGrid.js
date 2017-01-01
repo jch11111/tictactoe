@@ -8,16 +8,20 @@ var gameGrid = (function () {
         XXX = 'XXX',
         OOO = 'OOO',
         squares = [
-            { squareNumber: 0, isCorner: true, isCorner: true, origin: { x: 0, y: 0 }, position: { row: 0, col: 0, diag1: true } },
-            { squareNumber: 1, isCorner: false, origin: { x: rowAndColumnHeight, y: 0 }, position: { row: 0, col: 1 } },
-            { squareNumber: 2, isCorner: true, origin: { x: rowAndColumnHeight * 2, y: 0 }, position: { row: 0, col: 2, diag2: true } },
-            { squareNumber: 3, isCorner: false, origin: { x: 0, y: rowAndColumnHeight }, position: { row: 1, col: 0 } },
-            { squareNumber: 4, isCorner: false, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight }, position: { row: 1, col: 1, diag1: true, diag2: true } },
-            { squareNumber: 5, isCorner: false, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight }, position: { row: 1, col: 2 } },
-            { squareNumber: 6, isCorner: true, origin: { x: 0, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 0, diag2: true } },
-            { squareNumber: 7, isCorner: false, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 1 } },
-            { squareNumber: 8, isCorner: true, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 2, diag1: true } }
-        ];
+            { squareNumber: 0, isEdge: false, isCorner: true, origin: { x: 0, y: 0 }, position: { row: 0, col: 0, diag1: true } },
+            { squareNumber: 1, isEdge: true, isCorner: false, origin: { x: rowAndColumnHeight, y: 0 }, position: { row: 0, col: 1 } },
+            { squareNumber: 2, isEdge: false, isCorner: true, origin: { x: rowAndColumnHeight * 2, y: 0 }, position: { row: 0, col: 2, diag2: true } },
+            { squareNumber: 3, isEdge: true, isCorner: false, origin: { x: 0, y: rowAndColumnHeight }, position: { row: 1, col: 0 } },
+            { squareNumber: 4, isEdge: false, isCorner: false, isCenter: true, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight }, position: { row: 1, col: 1, diag1: true, diag2: true } },
+            { squareNumber: 5, isEdge: true, isCorner: false, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight }, position: { row: 1, col: 2 } },
+            { squareNumber: 6, isEdge: false, isCorner: true, origin: { x: 0, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 0, diag2: true } },
+            { squareNumber: 7, isEdge: true, isCorner: false, origin: { x: rowAndColumnHeight, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 1 } },
+            { squareNumber: 8, isEdge: false, isCorner: true, origin: { x: rowAndColumnHeight * 2, y: rowAndColumnHeight * 2 }, position: { row: 2, col: 2, diag1: true } }
+        ],
+        positions = {
+            CENTER: 4,
+            LOWER_RIGHT: 8
+        };
 
     function clear(canvas) {
         canvas = canvas[0];
@@ -125,10 +129,10 @@ var gameGrid = (function () {
         }
     }
 
-    function getIminentWinStripes(xOrO) {
-        return getStripesMeetingCriteria(function (stripe) {
+    function getIminentWinRows(xOrO) {
+        return getRowsMeetingCriteria(function (stripe) {
             var twoXsOrOs = xOrO + xOrO;
-            return twoXsOrOs === getXsAndOsFromStripe(stripe);
+            return twoXsOrOs === getXsAndOsFromRow(stripe);
         });
     }
 
@@ -166,7 +170,7 @@ var gameGrid = (function () {
         return squares[squareNumber].xOrO;
     }
 
-    function getStripe (direction, rowOrColumnNumber) {
+    function getRow (direction, rowOrColumnNumber) {
         return squares.filter(function (square) {
             if ('diag1' === direction || 'diag2' === direction) {
                 return square.position[direction];
@@ -176,25 +180,25 @@ var gameGrid = (function () {
         })
     }
 
-    function getStripesMeetingCriteria (criteriaFunction) {
+    function getRowsMeetingCriteria (criteriaFunction) {
         var stripes = [],
             me = this;
 
-        getStripes('row');
-        getStripes('col');
-        getStripes('diag1');
-        getStripes('diag2');
+        getRows('row');
+        getRows('col');
+        getRows('diag1');
+        getRows('diag2');
 
-        function getStripes(direction) {
+        function getRows(direction) {
             var stripe;
             if ('diag1' === direction || 'diag2' === direction) {
-                stripe = getStripe(direction);
+                stripe = getRow(direction);
                 if (criteriaFunction(stripe)) {
                     stripes.push(stripe);
                 }
             } else {
                 for (var squareNumber = 0; squareNumber <= 2; squareNumber++) {
-                    stripe = getStripe(direction, squareNumber);
+                    stripe = getRow(direction, squareNumber);
                     if (criteriaFunction(stripe)) {
                         stripes.push(stripe);
                     }
@@ -204,9 +208,9 @@ var gameGrid = (function () {
         return stripes;
     }
 
-    function getWinningStripe() {
-        return getStripesMeetingCriteria(function (stripe) {
-            var stripeXsAndOs = getXsAndOsFromStripe(stripe);
+    function getWinningRow() {
+        return getRowsMeetingCriteria(function (stripe) {
+            var stripeXsAndOs = getXsAndOsFromRow(stripe);
             return stripeXsAndOs === XXX || stripeXsAndOs === OOO;
         });
     }
@@ -217,7 +221,7 @@ var gameGrid = (function () {
         });
     }
 
-    function getXsAndOsFromStripe (stripe) {
+    function getXsAndOsFromRow (stripe) {
         return stripe.map(function (square) {
             return square.xOrO;
         })
@@ -243,11 +247,12 @@ var gameGrid = (function () {
         clear: clear,
         drawGame: drawGame,
         getAvailableSquares: getAvailableSquares,
-        getIminentWinStripes: getIminentWinStripes,
+        getIminentWinRows: getIminentWinRows,
         getSquareNumberFromXYCoord: getSquareNumberFromXYCoord,
         getSquareValue: getSquareValue,
-        getWinningStripe: getWinningStripe,
+        getWinningRow: getWinningRow,
         getXorOSquares: getXorOSquares,
+        positions: positions,
         refreshGame: refreshGame,
         setSquareValue: setSquareValue
     }
