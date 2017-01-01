@@ -12,16 +12,35 @@ var tictactoe = (function () {
         firstSquarePlayedByPlayer,
         gameStatus,
         playNumber = 0,
-        whoGoesFirst = PLAYER,
+        whoGoesFirst = COMPUTER,
         whoseTurn = whoGoesFirst;
 
     function checkIfGameOver() {
+        var gameOver = false,
+            gameOverMessage,
+            winningRow;
+
         if (0 === gameGrid.getAvailableSquares('all').length) {
-            return true;
+            //all squares have already been taken by an X or an O - tie game
+            gameOver = true;
+            gameOverMessage = 'game was a tie';
         }
 
-        var winningRow = gameGrid.getWinningRow();
-        return winningRow.length > 0 && winningRow[0];
+        winningRow = gameGrid.getWinningRow();
+
+        if (winningRow) {
+            gameOver = true;
+            gameOverMessage = winningRow[0].xOrO === X ? 'you won!' : 'you lost';
+        }
+
+        if (gameOver) {
+            gameStatus = GAME_OVER;
+            $('#whoseTurn')
+                .text(gameOverMessage)
+                .css('color', 'black');
+        }
+
+        return gameOver
     }
 
     function deepCopy(obj) {
@@ -82,6 +101,10 @@ var tictactoe = (function () {
             }
         }
 
+        if (whoGoesFirst === COMPUTER && 5 === playNumber && -1 === squareToPlay) {
+            var zzz = 3;
+        }
+
         if (whoGoesFirst === PLAYER && 2 === playNumber && -1 === squareToPlay) {
             firstSquarePlayedByPlayer = deepCopy(gameGrid.getXorOSquares(X)[0]);
 
@@ -109,8 +132,9 @@ var tictactoe = (function () {
             }
         }
 
+        //if square to play has not been determined, randomly pick an available square to play
         if (-1 === squareToPlay) {
-            squareToPlay = Math.floor(Math.random() * 9);
+            squareToPlay = Math.floor(Math.random() * 9);  //random number >= 0 and <= 8
 
             while (gameGrid.getSquareValue(squareToPlay)) {
                 squareToPlay = ++squareToPlay % 8;
@@ -119,12 +143,7 @@ var tictactoe = (function () {
 
         gameGrid.setSquareValue($('canvas'), squareToPlay, O);
 
-        if (checkIfGameOver()) {
-            gameStatus = GAME_OVER;
-            $('#whoseTurn')
-                .text('game over!')
-                .css('color', 'black');
-        } else {
+        if (!checkIfGameOver()) {
             setWhoseTurn(!whoseTurn);
         }
     }
@@ -134,10 +153,7 @@ var tictactoe = (function () {
 
         gameGrid.setSquareValue($('canvas'), squareNumber, X);
 
-        if (checkIfGameOver()) {
-            gameStatus = GAME_OVER;
-            $('#whoseTurn').text('gane over!')
-        } else {
+        if (!checkIfGameOver()) {
             setWhoseTurn(!whoseTurn);
 
             setTimeout(function () {
@@ -158,7 +174,7 @@ var tictactoe = (function () {
             availableSquare.xOrO = xOrO;    //temporarily set xOrO so we can test if this creates a checkmate
 
             if (gameGrid.getIminentWinRows(xOrO).length === 2) {
-                if (!isNaN(checkMateSquareNumber)) {
+                if (!isNaN(checkMateSquareNumber) && X === xOrO) {
                     checkMateSquareNumber = null;
                 } else {
                     checkMateSquareNumber = availableSquare.squareNumber;

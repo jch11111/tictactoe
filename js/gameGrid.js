@@ -212,7 +212,7 @@ var gameGrid = (function () {
         return getRowsMeetingCriteria(function (stripe) {
             var stripeXsAndOs = getXsAndOsFromRow(stripe);
             return stripeXsAndOs === XXX || stripeXsAndOs === OOO;
-        });
+        })[0];
     }
 
     function getXorOSquares(xOrO) {
