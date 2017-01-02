@@ -49,3 +49,11 @@ canvas {
 #whoseTurn {
     color: #F00;
 }
+
+h5 {
+    margin-bottom: 24px;
+}
+
+#whoseTurn {
+    margin-bottom: 16px;
+}

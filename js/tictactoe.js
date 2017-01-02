@@ -12,7 +12,7 @@ var tictactoe = (function () {
         firstSquarePlayedByPlayer,
         gameStatus,
         playNumber = 0,
-        whoGoesFirst = COMPUTER,
+        whoGoesFirst = PLAYER,
         whoseTurn = whoGoesFirst;
 
     function checkIfGameOver() {
@@ -23,21 +23,26 @@ var tictactoe = (function () {
         if (0 === gameGrid.getAvailableSquares('all').length) {
             //all squares have already been taken by an X or an O - tie game
             gameOver = true;
-            gameOverMessage = 'game was a tie';
+            gameOverMessage = 'it\'s a draw!';
         }
 
         winningRow = gameGrid.getWinningRow();
 
         if (winningRow) {
             gameOver = true;
-            gameOverMessage = winningRow[0].xOrO === X ? 'you won!' : 'you lost';
+            gameOverMessage = winningRow[0].xOrO === X ? 'you won!' : 'better luck next time!';
         }
 
         if (gameOver) {
             gameStatus = GAME_OVER;
             $('#whoseTurn')
                 .text(gameOverMessage)
-                .css('color', 'black');
+                .css('color', 'black')
+                .shiftLetters({
+                    duration: 400,
+                    easing: 'easeOutBounce'
+                });
+
         }
 
         return gameOver
