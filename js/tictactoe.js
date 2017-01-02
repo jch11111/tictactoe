@@ -42,14 +42,24 @@ var tictactoe = (function () {
                     duration: 400,
                     easing: 'easeOutBounce'
                 });
-
+            gameGrid.drawWinLine($('canvas'), winningRow);
         }
 
         return gameOver
     }
 
-    function deepCopy(obj) {
-        return JSON.parse(JSON.stringify(obj));
+    function createShakePlugin() {
+        jQuery.fn.shake = function (intShakes, intDistance, intDuration) {
+            this.each(function () {
+                $(this).css("position", "relative");
+                for (var x = 1; x <= intShakes; x++) {
+                    $(this).animate({ left: (intDistance * -1) }, (((intDuration / intShakes) / 4)))
+                .animate({ left: intDistance }, ((intDuration / intShakes) / 2))
+                .animate({ left: 0 }, (((intDuration / intShakes) / 4)));
+                }
+            });
+            return this;
+        };
     }
 
     function doComputersTurn() {
@@ -90,7 +100,7 @@ var tictactoe = (function () {
         }
 
         if (whoGoesFirst === COMPUTER && 3 === playNumber && -1 === squareToPlay) {
-            firstSquarePlayedByPlayer = deepCopy(gameGrid.getXorOSquares(X)[0]);
+            firstSquarePlayedByPlayer = utility.deepCopy(gameGrid.getXorOSquares(X)[0]);
 
             if (firstSquarePlayedByPlayer.isCorner) {
                 var availableCorner = gameGrid.getAvailableSquares('corner')[0];
@@ -111,7 +121,7 @@ var tictactoe = (function () {
         }
 
         if (whoGoesFirst === PLAYER && 2 === playNumber && -1 === squareToPlay) {
-            firstSquarePlayedByPlayer = deepCopy(gameGrid.getXorOSquares(X)[0]);
+            firstSquarePlayedByPlayer = utility.deepCopy(gameGrid.getXorOSquares(X)[0]);
 
             if (firstSquarePlayedByPlayer.isCorner) {
                 squareToPlay = gameGrid.positions.CENTER;
@@ -236,6 +246,8 @@ var tictactoe = (function () {
             setEventHandlers();
             gameStatus = GAME_IN_PLAY;
             gameGrid.drawGame($('canvas'));
+            createShakePlugin();
+
             if (whoGoesFirst === COMPUTER) {
                 $('#whoseTurn').text('computer\'s turn');
                 setTimeout(function () {

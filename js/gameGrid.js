@@ -59,39 +59,82 @@ var gameGrid = (function () {
         })
     }
 
+    function drawWinLine($canvas, winningRow) {
+
+        var startX,
+            startY,
+            endX,
+            endY,
+            winningRowsSortX = utility.deepCopy(sortRowOnXOrYCoordinate(winningRow, 'X')),
+            winningRowsSortY = utility.deepCopy(sortRowOnXOrYCoordinate(winningRow, 'Y')),
+            isVerticalWin = winningRowsSortX[0].origin.x === winningRowsSortX[2].origin.x,
+            isHorizontalWin = winningRowsSortX[0].origin.y === winningRowsSortX[2].origin.y,
+            isDiagonalWin = !isVerticalWin && !isHorizontalWin,
+            isDiagnoalWinULToLR = winningRow[0].origin.x < winningRow[2].origin.x,
+            isDiagnoalWinURToLL = isDiagonalWin & !isDiagnoalWinULToLR;
+
+        if (isVerticalWin) {
+            startX = endX = winningRowsSortX[0].origin.x + rowAndColumnHeight / 2;
+            startY = winningRowsSortY[0].origin.y;
+            endY = winningRowsSortY[2].origin.y + rowAndColumnHeight;
+        }
+
+        if (!isVerticalWin) {
+            startX = winningRowsSortX[0].origin.x;
+            endX = winningRowsSortX[2].origin.x + rowAndColumnHeight;
+        }
+
+        if (isHorizontalWin) {
+            startY = endY = winningRowsSortY[0].origin.y + rowAndColumnHeight / 2
+        }
+
+        if (isDiagonalWin && isDiagnoalWinULToLR) {
+            startY = winningRowsSortY[0].origin.y;
+            endY = winningRowsSortY[2].origin.y + rowAndColumnHeight;
+        }
+
+        if (isDiagonalWin && isDiagnoalWinURToLL) {
+            startY = winningRowsSortY[2].origin.y + rowAndColumnHeight;
+            endY = winningRowsSortY[0].origin.y;
+        }
+
+        $canvas.drawLine({
+            strokeStyle: '#000',
+            strokeWidth: 10,
+            x1: startX, y1: startY,
+            x2: endX, y2: endY,
+        });
+    }
+
     function drawX($canvas, squareNumber) {
         var squareOriginX = squares[squareNumber].origin.x,
             squareOriginY = squares[squareNumber].origin.y,
             startX = squareOriginX + padding,
-            startY = squareOriginY + padding,
             endX = startX + rowAndColumnHeight - (2 * padding),
-            endY = startY + rowAndColumnHeight - (2 * padding),
+            startY1 = squareOriginY + padding,
+            endY1 = startY1 + rowAndColumnHeight - (2 * padding),
+            startY2 = endY1,
+            endY2 = startY1,
             temp;
 
         $canvas.drawLine({
             strokeStyle: '#F00',
             strokeWidth: 5,
-            x1: startX, y1: startY,
-            x2: endX, y2: endY
+            x1: startX, y1: startY1,
+            x2: endX, y2: endY1,
         });
-
-        temp = startY;
-        startY = endY;
-        endY = temp;
 
         $canvas.drawLine({
             strokeStyle: '#F00',
             strokeWidth: 5,
-            x1: startX, y1: startY,
-            x2: endX, y2: endY
+            x1: startX, y1: startY2,
+            x2: endX, y2: endY2
         });
     }
 
     function drawO($canvas, squareNumber) {
-        var squareOriginX = squares[squareNumber].origin.x,
-            squareOriginY = squares[squareNumber].origin.y,
-            centerX = squareOriginX + rowAndColumnHeight / 2,
-            centerY = squareOriginY + rowAndColumnHeight / 2,
+        var centerX = squares[squareNumber].origin.x + rowAndColumnHeight / 2,
+            centerY = squares[squareNumber].origin.y + rowAndColumnHeight / 2,
             circleWidthAndHeight = rowAndColumnHeight - (2 * padding);
 
         $canvas.drawEllipse({
@@ -100,7 +143,6 @@ var gameGrid = (function () {
             x: centerX, y: centerY,
             width: circleWidthAndHeight, height: circleWidthAndHeight
         });
-
     }
 
     function getAvailableCorner() {
@@ -243,9 +285,20 @@ var gameGrid = (function () {
         X === xOrO ? drawX($canvas, squareNumber) : drawO($canvas, squareNumber);
     }
 
+    function sortRowOnXOrYCoordinate(row, xOrYCoordinate) {
+        return row.sort(function (squareA, squareB) {
+            if ('X' === xOrYCoordinate) {
+                return squareA.origin.x - squareB.origin.x;
+            } else {
+                return squareA.origin.y - squareB.origin.y;
+            }
+        });
+    }
+
     return {
         clear: clear,
         drawGame: drawGame,
+        drawWinLine: drawWinLine,
         getAvailableSquares: getAvailableSquares,
         getIminentWinRows: getIminentWinRows,
         getSquareNumberFromXYCoord: getSquareNumberFromXYCoord,
