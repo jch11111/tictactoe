@@ -7,6 +7,7 @@ var gameGrid = (function () {
         O = 'O',
         XXX = 'XXX',
         OOO = 'OOO',
+        gridLineWidth = 7,
         squares = [
             { squareNumber: 0, isEdge: false, isCorner: true, origin: { x: 0, y: 0 }, position: { row: 0, col: 0, diag1: true } },
             { squareNumber: 1, isEdge: true, isCorner: false, origin: { x: rowAndColumnHeight, y: 0 }, position: { row: 0, col: 1 } },
@@ -35,25 +36,25 @@ var gameGrid = (function () {
     function drawGame(canvas) {
         canvas.drawLine({
             strokeStyle: '#000',
-            strokeWidth: 10,
+            strokeWidth: gridLineWidth,
             x1: rowAndColumnHeight, y1: 0,
             x2: rowAndColumnHeight, y2: rowAndColumnHeight * 3
         })
         .drawLine({
             strokeStyle: '#000',
-            strokeWidth: 10,
+            strokeWidth: gridLineWidth,
             x1: rowAndColumnHeight * 2, y1: 0,
             x2: rowAndColumnHeight * 2, y2: rowAndColumnHeight * 3
         })
         .drawLine({
             strokeStyle: '#000',
-            strokeWidth: 10,
+            strokeWidth: gridLineWidth,
             x1: 0, y1: rowAndColumnHeight,
             x2: rowAndColumnHeight * 3, y2: rowAndColumnHeight
         })
         .drawLine({
             strokeStyle: '#000',
-            strokeWidth: 10,
+            strokeWidth: gridLineWidth,
             x1: 0, y1: rowAndColumnHeight * 2,
             x2: rowAndColumnHeight * 3, y2: rowAndColumnHeight * 2
         })
@@ -70,7 +71,7 @@ var gameGrid = (function () {
             isVerticalWin = winningRowsSortX[0].origin.x === winningRowsSortX[2].origin.x,
             isHorizontalWin = winningRowsSortX[0].origin.y === winningRowsSortX[2].origin.y,
             isDiagonalWin = !isVerticalWin && !isHorizontalWin,
-            isDiagnoalWinULToLR = winningRow[0].origin.x < winningRow[2].origin.x,
+            isDiagnoalWinULToLR = isDiagonalWin && winningRow[0].origin.x < winningRow[2].origin.x,
             isDiagnoalWinURToLL = isDiagonalWin & !isDiagnoalWinULToLR;
 
         if (isVerticalWin) {
@@ -100,7 +101,7 @@ var gameGrid = (function () {
 
         $canvas.drawLine({
             strokeStyle: '#000',
-            strokeWidth: 10,
+            strokeWidth: 3,
             x1: startX, y1: startY,
             x2: endX, y2: endY,
         });
@@ -280,8 +281,12 @@ var gameGrid = (function () {
         })
     }
 
-    function setSquareValue($canvas, squareNumber, xOrO) {
-        squares[squareNumber].xOrO = xOrO;
+    function setSquareValue(squareNumber, value) {
+        squares[squareNumber].xOrO = value;
+    }
+
+    function setSquareValueAndDrawSquare($canvas, squareNumber, xOrO) {
+        setSquareValue(squareNumber, xOrO);
         X === xOrO ? drawX($canvas, squareNumber) : drawO($canvas, squareNumber);
     }
 
@@ -307,6 +312,7 @@ var gameGrid = (function () {
         getXorOSquares: getXorOSquares,
         positions: positions,
         refreshGame: refreshGame,
-        setSquareValue: setSquareValue
+        setSquareValue: setSquareValue,
+        setSquareValueAndDrawSquare: setSquareValueAndDrawSquare
     }
 }());

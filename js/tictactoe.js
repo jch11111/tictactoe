@@ -90,11 +90,6 @@ var tictactoe = (function () {
             squareToPlay = checkMateSquareComputer.checkMateSquareNumber
         }
 
-        if ((checkMateSquarePlayer = findCheckmate(X)) && -1 === squareToPlay) {
-            //block opponent from creating a checkmate
-            squareToPlay = checkMateSquarePlayer.checkMateSquareNumber
-        }
-
         if (whoGoesFirst === COMPUTER && 1 === playNumber && -1 === squareToPlay) {
             squareToPlay = 0; //always start in top left corner if computer first
         }
@@ -156,7 +151,12 @@ var tictactoe = (function () {
             };
         }
 
-        gameGrid.setSquareValue($('canvas'), squareToPlay, O);
+        if (checkMateSquarePlayer = findCheckmate(X, squareToPlay)) {
+            //block opponent from creating a checkmate
+            squareToPlay = checkMateSquarePlayer.checkMateSquareNumber
+        }
+
+        gameGrid.setSquareValueAndDrawSquare($('canvas'), squareToPlay, O);
 
         if (!checkIfGameOver()) {
             setWhoseTurn(!whoseTurn);
@@ -166,7 +166,7 @@ var tictactoe = (function () {
     function doPlayersTurn(squareNumber) {
         playNumber++;
 
-        gameGrid.setSquareValue($('canvas'), squareNumber, X);
+        gameGrid.setSquareValueAndDrawSquare($('canvas'), squareNumber, X);
 
         if (!checkIfGameOver()) {
             setWhoseTurn(!whoseTurn);
@@ -177,13 +177,19 @@ var tictactoe = (function () {
         }
     }
 
-    function findCheckmate(xOrO) {
+    function findCheckmate(xOrO, squareToPlay) {
         //a 'checkmate' is when a player has 2 different rows with 2 marked squares and one blank. 
         //this is a checkmate because the opponent can only block 1 row, allowing the player to win on the other row
         //This function searches for a grid that will create a checkmate for either X or O player
         var checkMateSquareNumber,
-            availableSquares = gameGrid.getAvailableSquares('all'),  //available squares do not have an X or O
+            availableSquares,
             iminentWinRows;
+
+        if (squareToPlay) {
+            gameGrid.setSquareValue(squareToPlay, xOrO === X ? O : X)
+        }
+
+        availableSquares = gameGrid.getAvailableSquares('all'),  //available squares do not have an X or O
 
         availableSquares.forEach(function (availableSquare) {
             availableSquare.xOrO = xOrO;    //temporarily set xOrO so we can test if this creates a checkmate
@@ -199,6 +205,9 @@ var tictactoe = (function () {
             delete availableSquare.xOrO;    //reset
         });
 
+        if (squareToPlay) {
+            gameGrid.setSquareValue(squareToPlay, null)
+        }
 
         return checkMateSquareNumber && { checkMateSquareNumber: checkMateSquareNumber };
     }
