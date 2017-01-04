@@ -11,6 +11,7 @@ var tictactoe = (function () {
         OOO = 'OOO',
         firstSquarePlayedByPlayer,
         gameStatus,
+        isNormalMode = location.hash !== '#easy',
         playNumber = 0,
         whoGoesFirst = PLAYER,
         whoseTurn = whoGoesFirst;
@@ -85,16 +86,16 @@ var tictactoe = (function () {
             squareToPlay = iminentPlayerWin.squareToBlockWin;
         }
 
-        if ((checkMateSquareComputer = findCheckmate(O)) && -1 === squareToPlay) {
+        if ((checkMateSquareComputer = findCheckmate(O)) && -1 === squareToPlay && isNormalMode) {
             //create 'checkmate' this play to win next play
             squareToPlay = checkMateSquareComputer.checkMateSquareNumber
         }
 
-        if (whoGoesFirst === COMPUTER && 1 === playNumber && -1 === squareToPlay) {
+        if (whoGoesFirst === COMPUTER && 1 === playNumber && -1 === squareToPlay && isNormalMode) {
             squareToPlay = 0; //always start in top left corner if computer first
         }
 
-        if (whoGoesFirst === COMPUTER && 3 === playNumber && -1 === squareToPlay) {
+        if (whoGoesFirst === COMPUTER && 3 === playNumber && -1 === squareToPlay && isNormalMode) {
             firstSquarePlayedByPlayer = utility.deepCopy(gameGrid.getXorOSquares(X)[0]);
 
             if (firstSquarePlayedByPlayer.isCorner) {
@@ -111,11 +112,11 @@ var tictactoe = (function () {
             }
         }
 
-        if (whoGoesFirst === COMPUTER && 5 === playNumber && -1 === squareToPlay) {
+        if (whoGoesFirst === COMPUTER && 5 === playNumber && -1 === squareToPlay && isNormalMode) {
             var zzz = 3;
         }
 
-        if (whoGoesFirst === PLAYER && 2 === playNumber && -1 === squareToPlay) {
+        if (whoGoesFirst === PLAYER && 2 === playNumber && -1 === squareToPlay && isNormalMode) {
             firstSquarePlayedByPlayer = utility.deepCopy(gameGrid.getXorOSquares(X)[0]);
 
             if (firstSquarePlayedByPlayer.isCorner) {
@@ -131,7 +132,7 @@ var tictactoe = (function () {
             }
         }
         
-        if (whoGoesFirst === PLAYER && 4 === playNumber && -1 === squareToPlay) {
+        if (whoGoesFirst === PLAYER && 4 === playNumber && -1 === squareToPlay && isNormalMode) {
             if (firstSquarePlayedByPlayer.isCorner) {
                 squareToPlay = gameGrid.getAvailableSquares('edge')[0].squareNumber;
             } else if (!gameGrid.getSquareValue(gameGrid.positions.CENTER)) {
@@ -151,7 +152,7 @@ var tictactoe = (function () {
             };
         }
 
-        if (checkMateSquarePlayer = findCheckmate(X, squareToPlay)) {
+        if ((checkMateSquarePlayer = findCheckmate(X, squareToPlay)) && isNormalMode) {
             //block opponent from creating a checkmate
             squareToPlay = checkMateSquarePlayer.checkMateSquareNumber
         }
