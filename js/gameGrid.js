@@ -2,7 +2,7 @@ var gameGrid = (function () {
 
     var rowAndColumnHeight = 75,
         padding = 0.2 * rowAndColumnHeight,
-        nonClickableDivider = 5,
+        nonClickableWidth = 5,
         X = 'X',
         O = 'O',
         XXX = 'XXX',
@@ -25,12 +25,15 @@ var gameGrid = (function () {
         };
 
     function clear(canvas) {
+        var context,
+            width;
+
         canvas = canvas[0];
-        var context = canvas.getContext('2d');
+        context = canvas.getContext('2d');
         context.clearRect(0, 0, canvas.width, canvas.height);
-        var w = canvas.width;
+        width = canvas.width;
         canvas.width = 1;
-        canvas.width = w;
+        canvas.width = width;
     }
 
     function drawGame(canvas) {
@@ -61,7 +64,6 @@ var gameGrid = (function () {
     }
 
     function drawWinLine($canvas, winningRow) {
-
         var startX,
             startY,
             endX,
@@ -75,7 +77,8 @@ var gameGrid = (function () {
             isDiagnoalWinURToLL = isDiagonalWin & !isDiagnoalWinULToLR;
 
         if (isVerticalWin) {
-            startX = endX = winningRowsSortX[0].origin.x + rowAndColumnHeight / 2;
+            startX =
+                endX = winningRowsSortX[0].origin.x + rowAndColumnHeight / 2;
             startY = winningRowsSortY[0].origin.y;
             endY = winningRowsSortY[2].origin.y + rowAndColumnHeight;
         }
@@ -86,7 +89,8 @@ var gameGrid = (function () {
         }
 
         if (isHorizontalWin) {
-            startY = endY = winningRowsSortY[0].origin.y + rowAndColumnHeight / 2
+            startY =
+                endY = winningRowsSortY[0].origin.y + rowAndColumnHeight / 2
         }
 
         if (isDiagonalWin && isDiagnoalWinULToLR) {
@@ -101,7 +105,7 @@ var gameGrid = (function () {
 
         $canvas.drawLine({
             strokeStyle: '#000',
-            strokeWidth: 3,
+            strokeWidth: 5,
             x1: startX, y1: startY,
             x2: endX, y2: endY,
         });
@@ -155,7 +159,7 @@ var gameGrid = (function () {
 
     function getAvailableEdge() {
         var availableEdges = getSquaresMeetingCriteria(function (square) {
-            return !square.isCorner && !square.xOrO;
+            return !square.isCorner && !square.isCenter & !square.xOrO;
         });
         return availableEdges.length && availableEdges;
     }
@@ -173,9 +177,9 @@ var gameGrid = (function () {
     }
 
     function getIminentWinRows(xOrO) {
-        return getRowsMeetingCriteria(function (stripe) {
+        return getRowsMeetingCriteria(function (row) {
             var twoXsOrOs = xOrO + xOrO;
-            return twoXsOrOs === getXsAndOsFromRow(stripe);
+            return twoXsOrOs === getXsAndOsFromRow(row);
         });
     }
 
@@ -187,12 +191,12 @@ var gameGrid = (function () {
 
     function getSquareNumberFromXYCoord(x, y) {
         var squareNumber,
-            isFirstRow = nonClickableDivider < y && y < rowAndColumnHeight - nonClickableDivider,
-            isSecondRow = rowAndColumnHeight + nonClickableDivider < y && y < rowAndColumnHeight * 2 - nonClickableDivider,
-            isThirdRow = rowAndColumnHeight * 2 + nonClickableDivider < y && y < rowAndColumnHeight * 3 - nonClickableDivider,
-            isFirstColumn = nonClickableDivider < x && x < rowAndColumnHeight - nonClickableDivider,
-            isSecondColumn = rowAndColumnHeight + nonClickableDivider < x && x < rowAndColumnHeight * 2 - nonClickableDivider,
-            isThirdColumn = rowAndColumnHeight * 2 + nonClickableDivider < x && x < rowAndColumnHeight * 3 - nonClickableDivider;
+            isFirstRow = nonClickableWidth < y && y < rowAndColumnHeight - nonClickableWidth,
+            isSecondRow = rowAndColumnHeight + nonClickableWidth < y && y < rowAndColumnHeight * 2 - nonClickableWidth,
+            isThirdRow = rowAndColumnHeight * 2 + nonClickableWidth < y && y < rowAndColumnHeight * 3 - nonClickableWidth,
+            isFirstColumn = nonClickableWidth < x && x < rowAndColumnHeight - nonClickableWidth,
+            isSecondColumn = rowAndColumnHeight + nonClickableWidth < x && x < rowAndColumnHeight * 2 - nonClickableWidth,
+            isThirdColumn = rowAndColumnHeight * 2 + nonClickableWidth < x && x < rowAndColumnHeight * 3 - nonClickableWidth;
 
         if (isFirstRow) {
             squareNumber = (isFirstColumn) ? 0 : ((isSecondColumn ? 1 : (isThirdColumn ? 2 : NaN)));
@@ -224,7 +228,7 @@ var gameGrid = (function () {
     }
 
     function getRowsMeetingCriteria (criteriaFunction) {
-        var stripes = [],
+        var rows = [],
             me = this;
 
         getRows('row');
@@ -233,22 +237,22 @@ var gameGrid = (function () {
         getRows('diag2');
 
         function getRows(direction) {
-            var stripe;
+            var row;
             if ('diag1' === direction || 'diag2' === direction) {
-                stripe = getRow(direction);
-                if (criteriaFunction(stripe)) {
-                    stripes.push(stripe);
+                row = getRow(direction);
+                if (criteriaFunction(row)) {
+                    rows.push(row);
                 }
             } else {
                 for (var squareNumber = 0; squareNumber <= 2; squareNumber++) {
-                    stripe = getRow(direction, squareNumber);
-                    if (criteriaFunction(stripe)) {
-                        stripes.push(stripe);
+                    row = getRow(direction, squareNumber);
+                    if (criteriaFunction(row)) {
+                        rows.push(row);
                     }
                 }
             }
         }
-        return stripes;
+        return rows;
     }
 
     function getWinningRow() {
@@ -281,12 +285,8 @@ var gameGrid = (function () {
         })
     }
 
-    function setSquareValue(squareNumber, value) {
-        squares[squareNumber].xOrO = value;
-    }
-
-    function setSquareValueAndDrawSquare($canvas, squareNumber, xOrO) {
-        setSquareValue(squareNumber, xOrO);
+    function setSquareValue($canvas, squareNumber, xOrO) {
+        squares[squareNumber].xOrO = xOrO;
         X === xOrO ? drawX($canvas, squareNumber) : drawO($canvas, squareNumber);
     }
 
@@ -312,7 +312,6 @@ var gameGrid = (function () {
         getXorOSquares: getXorOSquares,
         positions: positions,
         refreshGame: refreshGame,
-        setSquareValue: setSquareValue,
-        setSquareValueAndDrawSquare: setSquareValueAndDrawSquare
+        setSquareValue: setSquareValue
     }
 }());

@@ -2,13 +2,11 @@ var tictactoe = (function () {
 
     var
         COMPUTER = true,
-        GAME_IN_PLAY = 0,
         GAME_OVER = 1,
         PLAYER = false,
         X = 'X',
         O = 'O',
-        XXX = 'XXX',
-        OOO = 'OOO',
+        canvas,
         firstSquarePlayedByPlayer,
         gameStatus,
         isNormalMode = location.hash !== '#easy',
@@ -32,6 +30,7 @@ var tictactoe = (function () {
         if (winningRow) {
             gameOver = true;
             gameOverMessage = winningRow[0].xOrO === X ? 'you won!' : 'better luck next time!';
+            gameGrid.drawWinLine(canvas, winningRow);
         }
 
         if (gameOver) {
@@ -43,28 +42,14 @@ var tictactoe = (function () {
                     duration: 400,
                     easing: 'easeOutBounce'
                 });
-            gameGrid.drawWinLine($('canvas'), winningRow);
         }
 
         return gameOver
     }
 
-    function createShakePlugin() {
-        jQuery.fn.shake = function (intShakes, intDistance, intDuration) {
-            this.each(function () {
-                $(this).css("position", "relative");
-                for (var x = 1; x <= intShakes; x++) {
-                    $(this).animate({ left: (intDistance * -1) }, (((intDuration / intShakes) / 4)))
-                .animate({ left: intDistance }, ((intDuration / intShakes) / 2))
-                .animate({ left: 0 }, (((intDuration / intShakes) / 4)));
-                }
-            });
-            return this;
-        };
-    }
-
     function doComputersTurn() {
-        var iminentPlayerWin,
+        var availableCorner,
+            iminentPlayerWin,
             iminentComputerWin,
             checkMateSquareComputer,
             checkMateSquarePlayer,
@@ -86,6 +71,11 @@ var tictactoe = (function () {
             squareToPlay = iminentPlayerWin.squareToBlockWin;
         }
 
+        if ((checkMateSquarePlayer = findCheckmate(X)) && -1 === squareToPlay && isNormalMode) {
+            //block opponent from creating a checkmate
+            squareToPlay = checkMateSquarePlayer.checkMateSquareNumber
+        }
+
         if ((checkMateSquareComputer = findCheckmate(O)) && -1 === squareToPlay && isNormalMode) {
             //create 'checkmate' this play to win next play
             squareToPlay = checkMateSquareComputer.checkMateSquareNumber
@@ -99,8 +89,7 @@ var tictactoe = (function () {
             firstSquarePlayedByPlayer = utility.deepCopy(gameGrid.getXorOSquares(X)[0]);
 
             if (firstSquarePlayedByPlayer.isCorner) {
-                var availableCorner = gameGrid.getAvailableSquares('corner')[0];
-                squareToPlay = availableCorner && availableCorner.squareNumber;
+                squareToPlay = gameGrid.getAvailableSquares('corner')[0].squareNumber;
             }
 
             if (firstSquarePlayedByPlayer.isEdge) {
@@ -110,10 +99,6 @@ var tictactoe = (function () {
             if (firstSquarePlayedByPlayer.isCenter) {
                 squareToPlay = gameGrid.positions.LOWER_RIGHT;
             }
-        }
-
-        if (whoGoesFirst === COMPUTER && 5 === playNumber && -1 === squareToPlay && isNormalMode) {
-            var zzz = 3;
         }
 
         if (whoGoesFirst === PLAYER && 2 === playNumber && -1 === squareToPlay && isNormalMode) {
@@ -138,7 +123,7 @@ var tictactoe = (function () {
             } else if (!gameGrid.getSquareValue(gameGrid.positions.CENTER)) {
                 squareToPlay = gameGrid.positions.CENTER;
             } else {
-                var availableCorner = gameGrid.getAvailableSquares('corner')[0];
+                availableCorner = gameGrid.getAvailableSquares('corner')[0];
                 squareToPlay = availableCorner && availableCorner.squareNumber;
             }
         }
@@ -147,17 +132,13 @@ var tictactoe = (function () {
         if (-1 === squareToPlay) {
             squareToPlay = Math.floor(Math.random() * 9);  //random number >= 0 and <= 8
 
+            //starting at random number, search for an available square
             while (gameGrid.getSquareValue(squareToPlay)) {
                 squareToPlay = ++squareToPlay % 8;
             };
         }
 
-        if ((checkMateSquarePlayer = findCheckmate(X, squareToPlay)) && isNormalMode) {
-            //block opponent from creating a checkmate
-            squareToPlay = checkMateSquarePlayer.checkMateSquareNumber
-        }
-
-        gameGrid.setSquareValueAndDrawSquare($('canvas'), squareToPlay, O);
+        gameGrid.setSquareValue(canvas, squareToPlay, O);
 
         if (!checkIfGameOver()) {
             setWhoseTurn(!whoseTurn);
@@ -167,7 +148,7 @@ var tictactoe = (function () {
     function doPlayersTurn(squareNumber) {
         playNumber++;
 
-        gameGrid.setSquareValueAndDrawSquare($('canvas'), squareNumber, X);
+        gameGrid.setSquareValue(canvas, squareNumber, X);
 
         if (!checkIfGameOver()) {
             setWhoseTurn(!whoseTurn);
@@ -178,17 +159,13 @@ var tictactoe = (function () {
         }
     }
 
-    function findCheckmate(xOrO, squareToPlay) {
+    function findCheckmate(xOrO) {
         //a 'checkmate' is when a player has 2 different rows with 2 marked squares and one blank. 
         //this is a checkmate because the opponent can only block 1 row, allowing the player to win on the other row
-        //This function searches for a grid that will create a checkmate for either X or O player
+        //This function searches grid for a square that, if taken, will create a checkmate for either X or O player
         var checkMateSquareNumber,
             availableSquares,
             iminentWinRows;
-
-        if (squareToPlay) {
-            gameGrid.setSquareValue(squareToPlay, xOrO === X ? O : X)
-        }
 
         availableSquares = gameGrid.getAvailableSquares('all'),  //available squares do not have an X or O
 
@@ -206,19 +183,16 @@ var tictactoe = (function () {
             delete availableSquare.xOrO;    //reset
         });
 
-        if (squareToPlay) {
-            gameGrid.setSquareValue(squareToPlay, null)
-        }
-
         return checkMateSquareNumber && { checkMateSquareNumber: checkMateSquareNumber };
     }
 
     function findIminentWin(xOrO) {
         //identify square to occupy to prevent opponent win on next move
-        var iminentWinRows = gameGrid.getIminentWinRows(xOrO);
+        var iminentWinRows = gameGrid.getIminentWinRows(xOrO),
+            squareToBlockWin;
 
         if (iminentWinRows.length) {
-            var squareToBlockWin = iminentWinRows[0].filter(function (square) {
+            squareToBlockWin = iminentWinRows[0].filter(function (square) {
                 return !square.xOrO;  //unoccuied square is the square to block to prevent player win
             })[0].squareNumber
             return { squareToBlockWin: squareToBlockWin }
@@ -253,13 +227,13 @@ var tictactoe = (function () {
 
     function init() {
         $(function () {
+            canvas = $('canvas');
             setEventHandlers();
-            gameStatus = GAME_IN_PLAY;
-            gameGrid.drawGame($('canvas'));
-            createShakePlugin();
+            gameStatus = !GAME_OVER;
+            gameGrid.drawGame(canvas);
 
             if (whoGoesFirst === COMPUTER) {
-                $('#whoseTurn').text('computer\'s turn');
+                $('#whoseTurn').text('my turn');
                 setTimeout(function () {
                     doComputersTurn();
                 }, 1000);
@@ -270,19 +244,19 @@ var tictactoe = (function () {
     function restartGame() {
         playNumber = 0;
 
-        gameGrid.refreshGame($('canvas'));
-        gameStatus = GAME_IN_PLAY;
+        gameGrid.refreshGame(canvas);
+        gameStatus = !GAME_OVER;
         whoGoesFirst = !whoGoesFirst;
         setWhoseTurn(whoGoesFirst);
         if (whoGoesFirst === COMPUTER) {
             setTimeout(function () {
                 doComputersTurn();
-            }, 2000);
+            }, 1000);
         }
     }
 
     function setEventHandlers() {
-        $('canvas').click(function (e) {
+        canvas.click(function (e) {
             handleCanvasClick(e.offsetX, e.offsetY)
         });
     }
@@ -290,7 +264,7 @@ var tictactoe = (function () {
     function setWhoseTurn(who) {
         whoseTurn = who;
         $('#whoseTurn')
-            .text(whoseTurn === PLAYER ? 'your turn' : 'computer\'s turn')
+            .text(whoseTurn === PLAYER ? 'your turn' : 'my turn')
             .css('color', whoseTurn === PLAYER ? 'red' : 'green');
     }
 
