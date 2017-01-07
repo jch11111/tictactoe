@@ -61,3 +61,9 @@ html, body {
         font-size: 32px;
     }  
 }
+
+/*@media screen and (max-width: 400px) {
+    #message {
+        font-size: 14px;
+    }  
+}*/
