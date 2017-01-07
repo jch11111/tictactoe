@@ -47,8 +47,13 @@ var tictactoe = (function () {
                     duration: 400,
                     easing: 'easeOutBounce'
                 });
-        }
 
+            setTimeout(function() {          
+                $('#message')
+                    .text('Click on game to play again')
+                    .css('color', '#000');
+            }, 3000);
+        }
         return gameOver
     }
 
