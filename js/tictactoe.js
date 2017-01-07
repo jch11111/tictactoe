@@ -11,7 +11,7 @@ var tictactoe = (function () {
         gameStatus,
         isNormalMode = location.hash !== '#easy',
         playNumber = 0,
-        whoGoesFirst = COMPUTER,
+        whoGoesFirst = PLAYER,
         whoseTurn = whoGoesFirst;
 
     function checkIfGameOver() {
