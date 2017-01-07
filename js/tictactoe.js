@@ -13,7 +13,7 @@ var tictactoe = (function () {
         gameStatus,
         isNormalMode = location.hash !== '#easy',
         playNumber = 0,
-        userSymbol,
+        playerSymbol,
         whoGoesFirst = PLAYER,
         whoseTurn = whoGoesFirst;
 
@@ -32,7 +32,7 @@ var tictactoe = (function () {
 
         if (winningRow) {
             gameOver = true;
-            gameOverMessage = winningRow[0].xOrO === X ? 'you won!' : 'better luck next time!';
+            gameOverMessage = winningRow[0].xOrO === playerSymbol ? 'you won!' : 'better luck next time!';
             gameGrid.drawWinLine($canvas, winningRow);
         }
 
@@ -64,22 +64,22 @@ var tictactoe = (function () {
             return edgeSquareNumber < 5 ? 0 : 8;
         }
 
-        if (iminentComputerWin = findIminentWin(O)) {
+        if (iminentComputerWin = findIminentWin(computerSymbol)) {
             //win if you can on this play!
             squareToPlay = iminentComputerWin.squareToBlockWin;
         }
 
-        if ((iminentPlayerWin = findIminentWin(X)) && -1 === squareToPlay) {
+        if ((iminentPlayerWin = findIminentWin(playerSymbol)) && -1 === squareToPlay) {
             //block opponent from winning this play
             squareToPlay = iminentPlayerWin.squareToBlockWin;
         }
 
-        if ((checkMateSquareComputer = findCheckmate(O)) && -1 === squareToPlay && isNormalMode) {
+        if ((checkMateSquareComputer = findCheckmate(computerSymbol)) && -1 === squareToPlay && isNormalMode) {
             //create 'checkmate' this play to win next play
             squareToPlay = checkMateSquareComputer.checkMateSquareNumber
         }
 
-        if ((checkMateSquarePlayer = findCheckmate(X)) && -1 === squareToPlay && isNormalMode) {
+        if ((checkMateSquarePlayer = findCheckmate(playerSymbol)) && -1 === squareToPlay && isNormalMode) {
             //block opponent from creating a checkmate
             squareToPlay = checkMateSquarePlayer.checkMateSquareNumber
         }
@@ -89,7 +89,7 @@ var tictactoe = (function () {
         }
 
         if (whoGoesFirst === COMPUTER && 3 === playNumber && -1 === squareToPlay && isNormalMode) {
-            firstSquarePlayedByPlayer = utility.deepCopy(gameGrid.getXorOSquares(X)[0]);
+            firstSquarePlayedByPlayer = utility.deepCopy(gameGrid.getXorOSquares(playerSymbol)[0]);
 
             if (firstSquarePlayedByPlayer.isCorner) {
                 squareToPlay = gameGrid.getAvailableSquares('corner')[0].squareNumber;
@@ -105,7 +105,7 @@ var tictactoe = (function () {
         }
 
         if (whoGoesFirst === PLAYER && 2 === playNumber && -1 === squareToPlay && isNormalMode) {
-            firstSquarePlayedByPlayer = utility.deepCopy(gameGrid.getXorOSquares(X)[0]);
+            firstSquarePlayedByPlayer = utility.deepCopy(gameGrid.getXorOSquares(playerSymbol)[0]);
 
             if (firstSquarePlayedByPlayer.isCorner) {
                 squareToPlay = gameGrid.positions.CENTER;
@@ -141,7 +141,7 @@ var tictactoe = (function () {
             };
         }
 
-        gameGrid.setSquareValue($canvas, squareToPlay, O);
+        gameGrid.setSquareValue($canvas, squareToPlay, computerSymbol);
 
         if (!checkIfGameOver()) {
             setWhoseTurn(!whoseTurn);
@@ -151,7 +151,7 @@ var tictactoe = (function () {
     function doPlayersTurn(squareNumber) {
         playNumber++;
 
-        gameGrid.setSquareValue($canvas, squareNumber, X);
+        gameGrid.setSquareValue($canvas, squareNumber, playerSymbol);
 
         if (!checkIfGameOver()) {
             setWhoseTurn(!whoseTurn);
@@ -176,7 +176,7 @@ var tictactoe = (function () {
             availableSquare.xOrO = xOrO;    //temporarily set xOrO so we can test if this creates a checkmate
 
             if (gameGrid.getIminentWinRows(xOrO).length === 2) {
-                if (!isNaN(checkMateSquareNumber) && X === xOrO) {
+                if (!isNaN(checkMateSquareNumber) && playerSymbol === xOrO) {
                     checkMateSquareNumber = null;
                 } else {
                     checkMateSquareNumber = availableSquare.squareNumber;
@@ -275,8 +275,8 @@ var tictactoe = (function () {
     }
 
     function setUserSymbolAndStartGame(xOrO) {
-        userSymbol = xOrO;
-        computerSymbol = userSymbol === X ? O : X;
+        playerSymbol = xOrO;
+        computerSymbol = playerSymbol === X ? O : X;
         gameStatus = !GAME_OVER;
         setWhoseTurn(whoseTurn);
     }
