@@ -4,14 +4,14 @@ var tictactoe = (function () {
         COMPUTER = true,
         GAME_OVER = 1,
         PLAYER = false,
-        X = 'X',
         O = 'O',
-        canvas,
+        X = 'X',
+        $canvas,
         firstSquarePlayedByPlayer,
         gameStatus,
         isNormalMode = location.hash !== '#easy',
         playNumber = 0,
-        whoGoesFirst = PLAYER,
+        whoGoesFirst = COMPUTER,
         whoseTurn = whoGoesFirst;
 
     function checkIfGameOver() {
@@ -30,7 +30,7 @@ var tictactoe = (function () {
         if (winningRow) {
             gameOver = true;
             gameOverMessage = winningRow[0].xOrO === X ? 'you won!' : 'better luck next time!';
-            gameGrid.drawWinLine(canvas, winningRow);
+            gameGrid.drawWinLine($canvas, winningRow);
         }
 
         if (gameOver) {
@@ -71,14 +71,14 @@ var tictactoe = (function () {
             squareToPlay = iminentPlayerWin.squareToBlockWin;
         }
 
-        if ((checkMateSquarePlayer = findCheckmate(X)) && -1 === squareToPlay && isNormalMode) {
-            //block opponent from creating a checkmate
-            squareToPlay = checkMateSquarePlayer.checkMateSquareNumber
-        }
-
         if ((checkMateSquareComputer = findCheckmate(O)) && -1 === squareToPlay && isNormalMode) {
             //create 'checkmate' this play to win next play
             squareToPlay = checkMateSquareComputer.checkMateSquareNumber
+        }
+
+        if ((checkMateSquarePlayer = findCheckmate(X)) && -1 === squareToPlay && isNormalMode) {
+            //block opponent from creating a checkmate
+            squareToPlay = checkMateSquarePlayer.checkMateSquareNumber
         }
 
         if (whoGoesFirst === COMPUTER && 1 === playNumber && -1 === squareToPlay && isNormalMode) {
@@ -138,7 +138,7 @@ var tictactoe = (function () {
             };
         }
 
-        gameGrid.setSquareValue(canvas, squareToPlay, O);
+        gameGrid.setSquareValue($canvas, squareToPlay, O);
 
         if (!checkIfGameOver()) {
             setWhoseTurn(!whoseTurn);
@@ -148,7 +148,7 @@ var tictactoe = (function () {
     function doPlayersTurn(squareNumber) {
         playNumber++;
 
-        gameGrid.setSquareValue(canvas, squareNumber, X);
+        gameGrid.setSquareValue($canvas, squareNumber, X);
 
         if (!checkIfGameOver()) {
             setWhoseTurn(!whoseTurn);
@@ -227,10 +227,10 @@ var tictactoe = (function () {
 
     function init() {
         $(function () {
-            canvas = $('canvas');
+            $canvas = $('canvas');
             setEventHandlers();
             gameStatus = !GAME_OVER;
-            gameGrid.drawGame(canvas);
+            gameGrid.drawGame($canvas);
 
             if (whoGoesFirst === COMPUTER) {
                 $('#whoseTurn').text('my turn');
@@ -244,7 +244,7 @@ var tictactoe = (function () {
     function restartGame() {
         playNumber = 0;
 
-        gameGrid.refreshGame(canvas);
+        gameGrid.refreshGame($canvas);
         gameStatus = !GAME_OVER;
         whoGoesFirst = !whoGoesFirst;
         setWhoseTurn(whoGoesFirst);
@@ -256,7 +256,7 @@ var tictactoe = (function () {
     }
 
     function setEventHandlers() {
-        canvas.click(function (e) {
+        $canvas.click(function (e) {
             handleCanvasClick(e.offsetX, e.offsetY)
         });
     }
@@ -264,7 +264,7 @@ var tictactoe = (function () {
     function setWhoseTurn(who) {
         whoseTurn = who;
         $('#whoseTurn')
-            .text(whoseTurn === PLAYER ? 'your turn' : 'my turn')
+            .text(whoseTurn === PLAYER ? 'your turn...' : 'my turn...')
             .css('color', whoseTurn === PLAYER ? 'red' : 'green');
     }
 

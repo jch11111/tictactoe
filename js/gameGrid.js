@@ -24,20 +24,20 @@ var gameGrid = (function () {
             LOWER_RIGHT: 8
         };
 
-    function clear(canvas) {
+    function clear($canvas) {
         var context,
             width;
 
-        canvas = canvas[0];
-        context = canvas.getContext('2d');
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        width = canvas.width;
-        canvas.width = 1;
-        canvas.width = width;
+        $canvas = $canvas[0];
+        context = $canvas.getContext('2d');
+        context.clearRect(0, 0, $canvas.width, $canvas.height);
+        width = $canvas.width;
+        $canvas.width = 1;
+        $canvas.width = width;
     }
 
-    function drawGame(canvas) {
-        canvas.drawLine({
+    function drawGame($canvas) {
+        $canvas.drawLine({
             strokeStyle: '#000',
             strokeWidth: gridLineWidth,
             x1: rowAndColumnHeight, y1: 0,
@@ -150,28 +150,32 @@ var gameGrid = (function () {
         });
     }
 
-    function getAvailableCorner() {
+    function getAvailableCorners() {
         var availableCorners = getSquaresMeetingCriteria(function (square) {
-            return square.isCorner && !square.xOrO;
+            var isAvailable = !square.xOrO;
+            return square.isCorner && isAvailable;
         });
         return availableCorners.length && availableCorners;
     }
 
-    function getAvailableEdge() {
+    function getAvailableEdges() {
         var availableEdges = getSquaresMeetingCriteria(function (square) {
-            return !square.isCorner && !square.isCenter & !square.xOrO;
+            var isEdge = !square.isCorner && !square.isCenter,
+                isAvailable = !square.xOrO;
+            return isEdge && isAvailable;
         });
         return availableEdges.length && availableEdges;
     }
 
     function getAvailableSquares(edgesCornersOrAll) {
         if ('edge' === edgesCornersOrAll) {
-            return getAvailableEdge();
+            return getAvailableEdges();
         } else if ('corner' === edgesCornersOrAll) {
-            return getAvailableCorner();
+            return getAvailableCorners();
         } else {
             return getSquaresMeetingCriteria(function (square) {
-                return !square.xOrO;
+                var isAvailable = !square.xOrO;
+                return isAvailable;
             });
         }
     }
@@ -256,9 +260,9 @@ var gameGrid = (function () {
     }
 
     function getWinningRow() {
-        return getRowsMeetingCriteria(function (stripe) {
-            var stripeXsAndOs = getXsAndOsFromRow(stripe);
-            return stripeXsAndOs === XXX || stripeXsAndOs === OOO;
+        return getRowsMeetingCriteria(function (row) {
+            var rowXsAndOs = getXsAndOsFromRow(row);
+            return rowXsAndOs === XXX || rowXsAndOs === OOO;
         })[0];
     }
 
@@ -268,16 +272,16 @@ var gameGrid = (function () {
         });
     }
 
-    function getXsAndOsFromRow (stripe) {
-        return stripe.map(function (square) {
+    function getXsAndOsFromRow (row) {
+        return row.map(function (square) {
             return square.xOrO;
         })
         .join('');
     }
 
-    function refreshGame(canvas) {
-        clear(canvas);
-        drawGame(canvas);
+    function refreshGame($canvas) {
+        clear($canvas);
+        drawGame($canvas);
         squares.forEach(function (square) {
             if (square.xOrO) {
                 delete square.xOrO;

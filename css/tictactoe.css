@@ -1,7 +1,7 @@
 html, body { 
   margin:0; 
   padding:0; 
-  font-size: 24px;
+  font-size: 16px;
 }
 
 input {
@@ -22,12 +22,13 @@ a:hover, a:focus, a:active, a:visited, a:link {
 }
 
 body {
-    font-family: 'Indie Flower', cursive;
+    font-family: 'Rock Salt', cursive;
 }
 
 .signature {
-    font-size: 20px;
+    font-size: 14px;
     color: #BBB;
+    margin-top: 20px;
 }
 
 .timerSettings {
