@@ -8,11 +8,13 @@ var tictactoe = (function () {
         O = 'O',
         X = 'X',
         $canvas,
+        computerColor,
         computerSymbol,
         firstSquarePlayedByPlayer,
         gameStatus,
         isNormalMode = location.hash !== '#easy',
         playNumber = 0,
+        playerColor,
         playerSymbol,
         whoGoesFirst = PLAYER,
         whoseTurn = whoGoesFirst;
@@ -43,8 +45,6 @@ var tictactoe = (function () {
                 .css('color', 'black')
                 .shiftLetters({
                     duration: 400,
-                    //minOffset: 0,
-                    //maxOffset: 0,
                     easing: 'easeOutBounce'
                 });
         }
@@ -269,25 +269,33 @@ var tictactoe = (function () {
             handleCanvasClick(e.offsetX, e.offsetY)
         });
         $('#X').click(function () {
-            setUserSymbolAndStartGame(X);
+            setSymbolsAndColors(X);
+            startGame();
         });
         $('#O').click(function () {
-            setUserSymbolAndStartGame(O);
+            setSymbolsAndColors(O);
+            startGame();
         });
     }
 
-    function setUserSymbolAndStartGame(xOrO) {
+    function setSymbolsAndColors(xOrO) {
         playerSymbol = xOrO;
+        playerColor = playerSymbol === X ? 'red' : 'green';
+
         computerSymbol = playerSymbol === X ? O : X;
-        gameStatus = !GAME_OVER;
-        setWhoseTurn(whoseTurn);
+        computerColor = computerSymbol === X ? 'red' : 'green';
     }
 
     function setWhoseTurn(who) {
         whoseTurn = who;
         $('#message')
             .text(whoseTurn === PLAYER ? 'your turn...' : 'my turn...')
-            .css('color', whoseTurn === PLAYER ? 'red' : 'green');
+            .css('color', whoseTurn === PLAYER ? playerColor : computerColor);
+    }
+
+    function startGame() {
+        gameStatus = !GAME_OVER;
+        setWhoseTurn(whoseTurn);
     }
 
     return {
