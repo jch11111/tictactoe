@@ -43,6 +43,8 @@ var tictactoe = (function () {
                 .css('color', 'black')
                 .shiftLetters({
                     duration: 400,
+                    //minOffset: 0,
+                    //maxOffset: 0,
                     easing: 'easeOutBounce'
                 });
         }

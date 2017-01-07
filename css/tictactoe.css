@@ -4,13 +4,6 @@ html, body {
   font-size: 16px;
 }
 
-input {
-    width: 80px;
-}
-
-@media screen and (max-width: 374px) {
-}
-
 @media screen and (max-width: 383px) {
     h5 {
         font-size: 32px;
@@ -28,7 +21,7 @@ body {
 .signature {
     font-size: 14px;
     color: #BBB;
-    margin-top: 20px;
+    margin-bottom: 40px;
 }
 
 .timerSettings {
@@ -40,22 +33,19 @@ body {
     text-align: center;
 }
 
-h5 {
-    text-align: center;
-}
-
 #X, #O, canvas {
     cursor: pointer;
 }
 
 h5 {
+    text-align: center;
     margin-top: 10px;
-    margin-bottom: 24px;
+    margin-bottom: 0px;
 }
 
 #message {
     color: #000;
-    margin-bottom: 16px;
+    margin-top: 20px;
 }
 
 #X {
@@ -67,6 +57,7 @@ h5 {
 }
 
 #X, #O {
-    font-weight: 800;
+    font-size: 30px;
+    font-weight: 600;
     font-family: sans-serif;
 }
