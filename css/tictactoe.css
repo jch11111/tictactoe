@@ -44,11 +44,8 @@ h5 {
     text-align: center;
 }
 
-canvas {
-}
-
-#whoseTurn {
-    color: #F00;
+#X, #O, canvas {
+    cursor: pointer;
 }
 
 h5 {
@@ -56,6 +53,20 @@ h5 {
     margin-bottom: 24px;
 }
 
-#whoseTurn {
+#message {
+    color: #000;
     margin-bottom: 16px;
+}
+
+#X {
+    color: #F00;
+}
+
+#O {
+    color: #0F0;
+}
+
+#X, #O {
+    font-size: 20px;
+    font-weight: 800;
 }

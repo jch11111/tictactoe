@@ -3,14 +3,17 @@ var tictactoe = (function () {
     var
         COMPUTER = true,
         GAME_OVER = 1,
+        WAITING_USER_XO_SELECTION = 2,
         PLAYER = false,
         O = 'O',
         X = 'X',
         $canvas,
+        computerSymbol,
         firstSquarePlayedByPlayer,
         gameStatus,
         isNormalMode = location.hash !== '#easy',
         playNumber = 0,
+        userSymbol,
         whoGoesFirst = PLAYER,
         whoseTurn = whoGoesFirst;
 
@@ -35,7 +38,7 @@ var tictactoe = (function () {
 
         if (gameOver) {
             gameStatus = GAME_OVER;
-            $('#whoseTurn')
+            $('#message')
                 .text(gameOverMessage)
                 .css('color', 'black')
                 .shiftLetters({
@@ -202,6 +205,10 @@ var tictactoe = (function () {
     function handleCanvasClick(x, y) {
         var squareNumber;
 
+        if (gameStatus === WAITING_USER_XO_SELECTION) {
+            return;
+        }
+
         if (gameStatus === GAME_OVER) {
             restartGame();
             return;
@@ -229,11 +236,11 @@ var tictactoe = (function () {
         $(function () {
             $canvas = $('canvas');
             setEventHandlers();
-            gameStatus = !GAME_OVER;
+            gameStatus = WAITING_USER_XO_SELECTION;
             gameGrid.drawGame($canvas);
 
             if (whoGoesFirst === COMPUTER) {
-                $('#whoseTurn').text('my turn');
+                $('#message').text('my turn');
                 setTimeout(function () {
                     doComputersTurn();
                 }, 1000);
@@ -259,11 +266,24 @@ var tictactoe = (function () {
         $canvas.click(function (e) {
             handleCanvasClick(e.offsetX, e.offsetY)
         });
+        $('#X').click(function () {
+            setUserSymbolAndStartGame(X);
+        });
+        $('#O').click(function () {
+            setUserSymbolAndStartGame(O);
+        });
+    }
+
+    function setUserSymbolAndStartGame(xOrO) {
+        userSymbol = xOrO;
+        computerSymbol = userSymbol === X ? O : X;
+        gameStatus = !GAME_OVER;
+        setWhoseTurn(whoseTurn);
     }
 
     function setWhoseTurn(who) {
         whoseTurn = who;
-        $('#whoseTurn')
+        $('#message')
             .text(whoseTurn === PLAYER ? 'your turn...' : 'my turn...')
             .css('color', whoseTurn === PLAYER ? 'red' : 'green');
     }
