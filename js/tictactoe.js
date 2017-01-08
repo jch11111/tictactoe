@@ -48,10 +48,12 @@ var tictactoe = (function () {
                     easing: 'easeOutBounce'
                 });
 
-            setTimeout(function() {          
-                $('#message')
-                    .text('Click on game to play again')
-                    .css('color', '#000');
+            setTimeout(function () {
+                if (gameStatus === GAME_OVER) {  //don't display if user already restarted game
+                    $('#message')
+                        .text('Click on game to play again')
+                        .css('color', '#000');
+                }
             }, 3000);
         }
         return gameOver
@@ -144,7 +146,7 @@ var tictactoe = (function () {
 
             //starting at random number, search for an available square
             while (gameGrid.getSquareValue(squareToPlay)) {
-                squareToPlay = ++squareToPlay % 8;
+                squareToPlay = ++squareToPlay % 9;
             };
         }
 
