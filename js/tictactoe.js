@@ -273,15 +273,18 @@ var tictactoe = (function () {
 
     function setEventHandlers() {
         $canvas.click(function (e) {
-            handleCanvasClick(e.offsetX, e.offsetY)
+            handleCanvasClick(e.offsetX, e.offsetY);
+            return false;
         });
         $('#X').click(function () {
             setSymbolsAndColors(X);
             startGame();
+            return false;
         });
         $('#O').click(function () {
             setSymbolsAndColors(O);
             startGame();
+            return false;
         });
     }
 
