@@ -272,7 +272,7 @@ var tictactoe = (function () {
     }
 
     function setEventHandlers() {
-        $canvas.click(function (e) {
+        $canvas.bind('touchstart click', function (e) {
             handleCanvasClick(e.offsetX, e.offsetY);
             return false;
         });
